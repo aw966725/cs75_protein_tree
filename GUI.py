@@ -2,7 +2,7 @@
 # 
 # FILE: GUI.py 
 #
-# AUTHORS: Alex Welton and Varun Ravishankar
+# AUTHORS: Alex Welton and Varun Ravishanker
 #
 # DESCRIPTION: Contains graphical user interface functionality
 # for Protein Tree project.
