@@ -10,6 +10,7 @@
 #
 
 from imports import *
+from math import *
 import Matching
 
 
@@ -28,9 +29,54 @@ class BLASTInfo (object):
     def __init__(self, matrix=DEFAULT_SUB_MATRIX, word_length=DEFAULT_WORD_LEN, 
         threshold=DEFAULT_THRESHOLD):
 
+        # Info about BLAST
         self.matrix = matrix
         self.word_length = word_length
         self.threshold = threshold
+        self.all_words = self.get_all_possible_words(matrix, word_length)
+
+        # To dynamically adjust score threshold
+        self.total_match_score = 0
+        self.total_match_squared_score = 0
+        self.total_number_matches = 0
+        self.threshold_score = 0
+
+    # Here we get a list of all possible word_length length words in matrix and store it
+    def get_all_words(self, matrix, word_length):
+        all_words = []
+        count = 0
+        return self.get_all_words_helper(all_words, matrix, count, word_length)
+
+    # Recursive helper method for getting all words
+    # Takes a word list, sub matrix, char count so far, word length
+    def get_all_words_helper(self, word_list, matrix, count, word_length):
+        # Base case
+        if count == word_length:
+            return word_list
+
+        # Recursive case
+        words_so_far = len(word_list)
+        for i in range(words_so_far):
+            # Add all new possible permutations
+            for j in range(len(matrix)):
+                new_word = word_list[i] + matrix[j]
+                word_list.append(new_word)
+            # Remove old base word
+            word_list.pop(i)
+
+        # Call again with new word list and longer length
+        return self.get_all_words_helper(word_list, matrix, count + 1, word_length)
+
+    # Re-calculate the approximated threshold score after each new matching
+    def recalculate_threshold_score(self):
+
+        # Get Z-score
+        mean = total_match_score / total_number_matches
+        std_dev = math.pow(((pow(self.total_match_squared_score), 2) / self.total_number_matches)
+            - pow(mean, 2))
+
+        # Get approximate threshold score
+        self.threshold_score = (((100 - self.threshold) / 100) * self.total_number_matches) + 0.5
 
 
 # Class for implementing BLAST alignment between two Species objects
@@ -59,6 +105,9 @@ class BLASTVariantPair (object):
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
+
+    # Get the word_length length words in each of the subsequences
+    def get_possible_words()
 
     # Ungapped BLAST alignment function - takes two sequences, a substitution
     # matrix (default blosum62), and a percentage of best matches to calculate score with
