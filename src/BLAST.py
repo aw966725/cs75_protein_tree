@@ -78,6 +78,13 @@ class BLASTInfo (object):
         # Get approximate threshold score
         self.threshold_score = (((100 - self.threshold) / 100) * self.total_number_matches) + 0.5
 
+    # Score two words of length "word_length" using the given substitution matrix
+    def BLAST_score(self, variant_a, variant_b, matrix, word_length):
+        score = 0
+        for i in range(word_length):
+            score += matrix[variant_a.sequence[i]][variant_b.sequence[i]]
+        return score
+        
 
 # Class for implementing BLAST alignment between two Species objects
 class BLASTSpeciesPair (object):
@@ -91,6 +98,7 @@ class BLASTSpeciesPair (object):
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
+
 
 # Class for containing BLAST alignment data for a given pair of Variants
 class BLASTVariantPair (object):
@@ -107,7 +115,10 @@ class BLASTVariantPair (object):
             self.info = info
 
     # Get the word_length length words in each of the subsequences
-    def get_possible_words()
+    def get_possible_words(self):
+        possible_words = []
+        for i in range(len(self.variant_a) - self.word_length + 1):
+            if 
 
     # Ungapped BLAST alignment function - takes two sequences, a substitution
     # matrix (default blosum62), and a percentage of best matches to calculate score with
