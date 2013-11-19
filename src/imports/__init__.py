@@ -7,4 +7,4 @@
 # DESCRIPTION: Package safety for imports.
 #
 
-__all__ = ['']
+__all__ = ['SubstitutionMatrix']

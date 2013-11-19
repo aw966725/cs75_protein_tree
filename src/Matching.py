@@ -8,8 +8,11 @@
 # peptide genes and their variants, as well as methods to determine two gene's
 # relative distane apart.
 #
+# Blosum62 alphabet matrix code from COSC 75 Homework 1
+#
 
 import ParseFASTA
+from imports import *
 
 
 # Represents a phylogenetic profile tree of multiple profiles
@@ -113,3 +116,5 @@ class Variant (object):
     # Return length of sequence
     def __len__(self):
         return len(self.sequence)
+
+
