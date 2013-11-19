@@ -7,4 +7,4 @@
 # DESCRIPTION: Package safety for imports.
 #
 
-__all__ = ['ParseFASTA']
+__all__ = ['']
