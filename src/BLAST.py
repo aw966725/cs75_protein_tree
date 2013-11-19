@@ -11,6 +11,7 @@
 
 from imports import *
 from math import *
+from collections import defaultdict
 import Matching
 
 
@@ -40,6 +41,14 @@ class BLASTInfo (object):
         self.total_match_squared_score = 0
         self.total_number_matches = 0
         self.threshold_score = 0
+
+        # Dynamically adjust matching threshold
+        self.total_align_score = 0
+        self.total_align_squared_score = 0
+        self.total_number_aligns = 0
+        self.align_threshold = 0
+
+        self.alignments = defaultdict(list)
 
     # Here we get a list of all possible word_length length words in matrix and store it
     def get_all_words(self, matrix, word_length):
@@ -77,14 +86,32 @@ class BLASTInfo (object):
 
         # Get approximate threshold score
         self.threshold_score = (((100 - self.threshold) / 100) * self.total_number_matches) + 0.5
+        return
+
+    # Recalculate the alignment threshold (same as above)
+    def recalculate_alignment_threshold(self):
+
+        # Get Z-score
+        mean = total_align_score / total_number_aligns
+        std_dev = math.pow(((pow(self.total_align_squared_score), 2) / self.total_number_aligns)
+            - pow(mean, 2))
+
+        self.align_threshold = (((100 - self.threshold) / 100) * self.total_number_aligns) + 0.5
+        return
 
     # Score two words of length "word_length" using the given substitution matrix
-    def BLAST_score(self, variant_a, variant_b, matrix, word_length):
-        score = 0
+    def BLAST_score(self, seq_a, seq_b, matrix, word_length):
+        marg_score = 0
         for i in range(word_length):
-            score += matrix[variant_a.sequence[i]][variant_b.sequence[i]]
+            marg_score += matrix[seq_a[i]][seq_b[i]]
+
+        score += marg_score
+        self.total_match_score += marg_score
+        self.total_match_squared_score += pow(marg_score, 2)
+        self.total_number_matches += 1
+
         return score
-        
+
 
 # Class for implementing BLAST alignment between two Species objects
 class BLASTSpeciesPair (object):
@@ -114,15 +141,60 @@ class BLASTVariantPair (object):
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
 
-    # Get the word_length length words in each of the subsequences
-    def get_possible_words(self):
-        possible_words = []
-        for i in range(len(self.variant_a) - self.word_length + 1):
-            if 
+    # Get the threshold-tested words in each of the subsequences
+    def get_threshold_words(self):
 
-    # Ungapped BLAST alignment function - takes two sequences, a substitution
-    # matrix (default blosum62), and a percentage of best matches to calculate score with
-    def ungapped_BLAST(self, seq_a, seq_b, matrix=DEFAULT_SUB_MATRIX, 
-        word_length=DEFAULT_WORD_LEN, threshold):
+        # Iterate over and check all word combinations, keeping only those above threshold
+        threshold_words = defaultdict(list)
+        for i in range(len(self.variant_a.sequence) - self.info.word_length + 1):
+            for j in range(len(self.variant_b.sequence) - self.info.word_length + 1):
+                if BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
+                    self.variant_b.sequence[j:j+word_length]) > self.info.threshold_score:
+                
+                    threshold_words[self.variant_a.sequence[i:i+self.info.word_length]].append(self.variant_b.sequence[j:j+self.infoword_length])
 
+        # Recalculate threshold
+        self.info.recalculate_threshold_score()
 
+        return threshold_words
+
+    # Get the best alignment for seq_a and seq_b
+    def get_best_alignment_BLAST(self, query, word):
+
+        # Get initial indices in full sequence and initial score
+        i = self.variant_a.sequence.find(query)
+        j = self.variant_b.sequence.find(word)
+        align_length = 0
+        score = BLAST_score(query, word, self.info.matrix, self.info.word_length)
+
+        while i > 0 and j > 0:
+            while self.info.matrix[self.variant_a.sequence[i-1]][self.variant_b.sequence[j-1]] > 0:
+                i -= 1
+                j -= 1
+                align_length += 1
+                score += self.info.matrix[self.variant_a.sequence[i-1]][self.variant_b.sequence[j-1]]
+
+        while i <= len(self.variant_a.sequence) and j <= len(self.variant_b.sequence):
+            while self.info.matrix[self.variant_a.sequence[i+self.info.word_length]][self.variant_b.sequence[j+self.info.word_length]]:
+                align_length += 1
+                score += self.info.matrix[self.variant_a.sequence[i+self.info.word_length]][self.variant_b.sequence[j+self.info.word_length]]
+
+        # Return substrings and score
+        return (self.variant_a.sequence[i:i+self.info.word_length],
+            self.variant_b.sequence[j:j+self.info.word_length], score)
+
+    # BLAST alignment function - takes two sequences and an info object
+    def align_BLAST(self, seq_a, seq_b, info):
+
+        # Get threshold-tested words
+        threshold_words = get_threshold_words()
+        for (query, word_list) in threshold_words.items():
+            for word in word_list:
+                best = get_best_alignment_BLAST(query, word)
+                if best[2] > self.info.align_threshold:
+                    self.info.alignments.append(best)
+
+        # Recalculate score threshold
+        self.info.recalculate_alignment_threshold()
+
+        return
