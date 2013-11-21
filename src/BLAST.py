@@ -10,7 +10,7 @@
 #
 
 from imports import *
-from math import *
+import math
 from collections import defaultdict
 import Matching
 
@@ -83,9 +83,11 @@ class BLASTInfo (object):
         mean = total_match_score / total_number_matches
         std_dev = math.pow(((pow(self.total_match_squared_score), 2) / self.total_number_matches)
             - pow(mean, 2))
+        z = 
 
         # Get approximate threshold score
-        self.threshold_score = (((100 - self.threshold) / 100) * self.total_number_matches) + 0.5
+        rank = (((100 - self.threshold) / 100) * self.total_number_matches) + 0.5
+        self.threshold_score = 
         return
 
     # Recalculate the alignment threshold (same as above)
@@ -96,7 +98,9 @@ class BLASTInfo (object):
         std_dev = math.pow(((pow(self.total_align_squared_score), 2) / self.total_number_aligns)
             - pow(mean, 2))
 
-        self.align_threshold = (((100 - self.threshold) / 100) * self.total_number_aligns) + 0.5
+        # Get approximate threshold score
+        rank = (((100 - self.threshold) / 100) * self.total_number_aligns) + 0.5
+        self.align_threshold = 
         return
 
     # Score two words of length "word_length" using the given substitution matrix
