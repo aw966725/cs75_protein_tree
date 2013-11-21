@@ -9,6 +9,18 @@
 # matrix.
 #
 
+
+
+
+
+
+# TODO: add minimum sample to functions
+
+
+
+
+
+
 from imports import *
 import math
 from collections import defaultdict
@@ -26,6 +38,8 @@ DEFAULT_SUB_MATRIX = SubstitutionMatrix.blosum62
 # evaluated thus far or it is discarded
 DEFAULT_THRESHOLD = 5
 
+# Minimum sample - the number of samples at which we begin to test the threshold
+MINIMUM_SAMPLE = 10
 
 ## CLASSES
 
@@ -42,17 +56,23 @@ class BLASTInfo (object):
         self.threshold = threshold
         self.all_words = self.get_all_possible_words(matrix, word_length)
 
-        # To dynamically adjust score threshold
+        # Dynamically adjust matching threshold
         self.total_match_score = 0
         self.total_match_squared_score = 0
         self.total_number_matches = 0
         self.threshold_score = 0
 
-        # Dynamically adjust matching threshold
+        # Dynamically adjust alignment threshold
         self.total_align_score = 0
         self.total_align_squared_score = 0
         self.total_number_aligns = 0
         self.align_threshold_score = 0
+
+        # Dynamically adjust relation threshold
+        self.total_relation_score = 0
+        self.total_relation_squared_score = 0
+        self.total_number_relations = 0
+        self.relation_threshold_score = 0
 
         self.alignments = defaultdict(list)
 
@@ -108,6 +128,18 @@ class BLASTInfo (object):
         self.align_threshold_score = (z * std_dev) + mean
         return
 
+    # Recalculate the relation threshold (same as above)
+    def recalculate_relation_threshold_score(self):
+
+        # Get Z-score
+        mean = total_relation_score / total_number_relations
+        std_dev = math.pow(((pow(self.total_relation_squared_score), 2) / self.total_number_relations)
+            - pow(mean, 2))
+        z = lookup_z_score(100 - self.threshold)
+
+        # Get approximate threshold score
+        self.align_threshold_score = (z * std_dev) + mean
+
     # Score two words of length "word_length" using the given substitution matrix
     def BLAST_score(self, seq_a, seq_b, matrix, word_length):
         marg_score = 0
@@ -131,9 +163,46 @@ class BLASTSpeciesPair (object):
         self.species_a = species_a
         self.species_b = species_b
 
+        # Relations defined between genes as families        
+        self.relations = []
+
+        # BLASTVariantPair objects
+        self.variant_pairs = self.get_alignments()
+
+        # "Families" of related proteins
+        self.protein_families = []
+
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
+
+    # Process alignments for the two species (may take a long time)
+    def get_alignments(self):
+
+        variant_pairs = []
+
+        # Iterate over first species' variants
+        for gene_a in self.species_a.genes:
+            for variant_a in gene_a:
+
+                # Iterate over second species' variants
+                for gene_b in self.species_b.genes:
+                    for variant_b in gene_b:
+
+                        # Create a BLASTVariantPair object and get the alignments
+                        this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
+                        variant_pairs.append(this_pair)
+
+                        # Test for relation between these variants
+                        if 
+
+    # Categorize the proteins into "families" to decrease processing time
+    def get_protein_families(self):
+        return
+
+    # Score species pair by blasting each variant against each other
+    def score_species_pair(self):
+        return
 
 
 # Class for containing BLAST alignment data for a given pair of Variants
@@ -149,6 +218,9 @@ class BLASTVariantPair (object):
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
+
+        # BLAST these protein sequences against each other and obtain score
+        self.score = score_variant_pair()
 
     # Get the threshold-tested words in each of the subsequences
     def get_threshold_words(self):
@@ -184,16 +256,16 @@ class BLASTVariantPair (object):
                 score += self.info.matrix[self.variant_a.sequence[i-1]][self.variant_b.sequence[j-1]]
 
         while i <= len(self.variant_a.sequence) and j <= len(self.variant_b.sequence):
-            while self.info.matrix[self.variant_a.sequence[i+self.info.word_length]][self.variant_b.sequence[j+self.info.word_length]]:
+            while self.info.matrix[self.variant_a.sequence[i+align_length]][self.variant_b.sequence[j+align_length]]:
                 align_length += 1
-                score += self.info.matrix[self.variant_a.sequence[i+self.info.word_length]][self.variant_b.sequence[j+self.info.word_length]]
+                score += self.info.matrix[self.variant_a.sequence[i+align_length]][self.variant_b.sequence[j+align_length]]
 
         # Return substrings and score
-        return (self.variant_a.sequence[i:i+self.info.word_length],
-            self.variant_b.sequence[j:j+self.info.word_length], score)
+        return (self.variant_a.sequence[i:i+align_length],
+            self.variant_b.sequence[j:j+align_length], score)
 
-    # BLAST alignment function - takes two sequences and an info object
-    def align_BLAST(self, seq_a, seq_b, info):
+    # BLAST alignment function - takes two sequences
+    def align_BLAST(self, seq_a, seq_b):
 
         # Get threshold-tested words
         threshold_words = get_threshold_words()
@@ -201,8 +273,14 @@ class BLASTVariantPair (object):
             for word in word_list:
                 best = get_best_alignment_BLAST(query, word)
                 if best[2] > self.info.align_threshold_score:
-                    self.info.alignments.append(best)
+                    # Alignment dictionary keys are tuples of the two variant IDs
+                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
 
         # Recalculate score threshold
         self.info.recalculate_alignment_threshold_score()
         return
+
+    # Scores an alignment of a pair of variants by blasting them and summing acceptable alignments
+    def score_variant_pair(self):
+        align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
+        return sum(self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)])
