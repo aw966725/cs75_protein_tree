@@ -12,16 +12,22 @@
 from imports import *
 import math
 from collections import defaultdict
-import Matching
 
+import Matching
+import NormalLookup
+
+## DEFINITIONS
 
 # Default word length "w"
 DEFAULT_WORD_LEN = 3
-DEFAULT_SUB_MATRIX = blosum62
+DEFAULT_SUB_MATRIX = SubstitutionMatrix.blosum62
 
 # Score threshold percentage - i.e. match must be in the X highest percent of scores
 # evaluated thus far or it is discarded
 DEFAULT_THRESHOLD = 5
+
+
+## CLASSES
 
 # Class for holding general information about the application of a BLAST algorithm
 class BLASTInfo (object):
@@ -46,7 +52,7 @@ class BLASTInfo (object):
         self.total_align_score = 0
         self.total_align_squared_score = 0
         self.total_number_aligns = 0
-        self.align_threshold = 0
+        self.align_threshold_score = 0
 
         self.alignments = defaultdict(list)
 
@@ -83,24 +89,23 @@ class BLASTInfo (object):
         mean = total_match_score / total_number_matches
         std_dev = math.pow(((pow(self.total_match_squared_score), 2) / self.total_number_matches)
             - pow(mean, 2))
-        z = 
+        z = lookup_z_score(100 - self.threshold)
 
         # Get approximate threshold score
-        rank = (((100 - self.threshold) / 100) * self.total_number_matches) + 0.5
-        self.threshold_score = 
+        self.threshold_score = (z * std_dev) + mean
         return
 
     # Recalculate the alignment threshold (same as above)
-    def recalculate_alignment_threshold(self):
+    def recalculate_alignment_threshold_score(self):
 
         # Get Z-score
         mean = total_align_score / total_number_aligns
         std_dev = math.pow(((pow(self.total_align_squared_score), 2) / self.total_number_aligns)
             - pow(mean, 2))
+        z = lookup_z_score(100 - self.threshold)
 
         # Get approximate threshold score
-        rank = (((100 - self.threshold) / 100) * self.total_number_aligns) + 0.5
-        self.align_threshold = 
+        self.align_threshold_score = (z * std_dev) + mean
         return
 
     # Score two words of length "word_length" using the given substitution matrix
@@ -162,7 +167,7 @@ class BLASTVariantPair (object):
 
         return threshold_words
 
-    # Get the best alignment for seq_a and seq_b
+    # Get the best alignment for a query and a similar word
     def get_best_alignment_BLAST(self, query, word):
 
         # Get initial indices in full sequence and initial score
@@ -195,10 +200,9 @@ class BLASTVariantPair (object):
         for (query, word_list) in threshold_words.items():
             for word in word_list:
                 best = get_best_alignment_BLAST(query, word)
-                if best[2] > self.info.align_threshold:
+                if best[2] > self.info.align_threshold_score:
                     self.info.alignments.append(best)
 
         # Recalculate score threshold
-        self.info.recalculate_alignment_threshold()
-
+        self.info.recalculate_alignment_threshold_score()
         return
