@@ -28,7 +28,7 @@ DEFAULT_SUB_MATRIX = SubstitutionMatrix.blosum62
 DEFAULT_THRESHOLD = 5
 
 # Minimum sample - the number of samples at which we begin to test the threshold
-MINIMUM_SAMPLE = 10
+MINIMUM_SAMPLE = 100
 
 
 ## CLASSES
@@ -153,7 +153,7 @@ class BLASTSpeciesPair (object):
         self.species_a = species_a
         self.species_b = species_b
 
-        # Relations defined between genes as families        
+        # Relations defined between genes      
         self.relations = []
 
         # BLASTVariantPair objects
@@ -183,8 +183,20 @@ class BLASTSpeciesPair (object):
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
                         variant_pairs.append(this_pair)
 
+                        score = score_species_pair()
+
                         # Test for relation between these variants
-                        #if 
+                        if (score > self.info.relation_threshold_score) or (self.info.total_number_relations 
+                        < MINIMUM_SAMPLE):
+
+                            # If this is the first time we pass minimum sample, remove entries lower than the sample
+                            if self.info.total_number_relations == MINIMUM_SAMPLE:
+                                for i in range(MINIMUM_SAMPLE):
+                                    if self.relations[i][2] < self.info.relation_threshold_score:
+                                        self.relations.pop(i)
+
+                            # Add to relation list
+                            self.relations.append((self.variant_a.gene_ID, self.variant_b.gene_ID, score))
 
     # Categorize the proteins into "families" to decrease processing time
     def get_protein_families(self):
@@ -219,11 +231,19 @@ class BLASTVariantPair (object):
         threshold_words = defaultdict(list)
         for i in range(len(self.variant_a.sequence) - self.info.word_length + 1):
             for j in range(len(self.variant_b.sequence) - self.info.word_length + 1):
-                if (BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
-                self.variant_b.sequence[j:j+word_length]) > self.info.threshold_score) or (self.total_number_matches
-                < MINIMUM_SAMPLE):
+
+                score = BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
+                    self.variant_b.sequence[j:j+word_length])
+
+                if (score > self.info.threshold_score) or (self.total_number_matches< MINIMUM_SAMPLE):
+
+                    # If this is the first time we cross minimum sample, remove old values lower than threshold
+                    if self.total_number_matches == MINIMUM_SAMPLE:
+                        for (query, info) in threshold_words.items():
+                            if info[1] < self.info.threshold_score:
+                                threshold_words.get(query).remove(info[0])
                 
-                    threshold_words[self.variant_a.sequence[i:i+self.info.word_length]].append(self.variant_b.sequence[j:j+self.infoword_length])
+                    threshold_words[self.variant_a.sequence[i:i+self.info.word_length]].append((self.variant_b.sequence[j:j+self.infoword_length], score))
 
         # Recalculate threshold
         self.info.recalculate_threshold_score()
@@ -264,6 +284,12 @@ class BLASTVariantPair (object):
             for word in word_list:
                 best = get_best_alignment_BLAST(query, word)
                 if best[2] > self.info.align_threshold_score or self.info.total_number_aligns < MINIMUM_SAMPLE:
+
+                    # If this is the first time we pass minimum sample, clear alignments with a lower score
+                    if self.info.total_number_aligns == MINIMUM_SAMPLE:
+                        for (variants, alignment) in self.info.alignments.items():
+                            if alignment[2] < self.info.align_threshold_score:
+                                self.info.alignments.get(variants).remove(alignment)
 
                     # Alignment dictionary keys are tuples of the two variant IDs
                     self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
