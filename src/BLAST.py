@@ -9,24 +9,13 @@
 # matrix.
 #
 
-
-
-
-
-
-# TODO: add minimum sample to functions
-
-
-
-
-
-
 from imports import *
 import math
 from collections import defaultdict
 
 import Matching
 import NormalLookup
+
 
 ## DEFINITIONS
 
@@ -40,6 +29,7 @@ DEFAULT_THRESHOLD = 5
 
 # Minimum sample - the number of samples at which we begin to test the threshold
 MINIMUM_SAMPLE = 10
+
 
 ## CLASSES
 
@@ -194,7 +184,7 @@ class BLASTSpeciesPair (object):
                         variant_pairs.append(this_pair)
 
                         # Test for relation between these variants
-                        if 
+                        #if 
 
     # Categorize the proteins into "families" to decrease processing time
     def get_protein_families(self):
@@ -229,8 +219,9 @@ class BLASTVariantPair (object):
         threshold_words = defaultdict(list)
         for i in range(len(self.variant_a.sequence) - self.info.word_length + 1):
             for j in range(len(self.variant_b.sequence) - self.info.word_length + 1):
-                if BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
-                    self.variant_b.sequence[j:j+word_length]) > self.info.threshold_score:
+                if (BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
+                self.variant_b.sequence[j:j+word_length]) > self.info.threshold_score) or (self.total_number_matches
+                < MINIMUM_SAMPLE):
                 
                     threshold_words[self.variant_a.sequence[i:i+self.info.word_length]].append(self.variant_b.sequence[j:j+self.infoword_length])
 
@@ -272,7 +263,8 @@ class BLASTVariantPair (object):
         for (query, word_list) in threshold_words.items():
             for word in word_list:
                 best = get_best_alignment_BLAST(query, word)
-                if best[2] > self.info.align_threshold_score:
+                if best[2] > self.info.align_threshold_score or self.info.total_number_aligns < MINIMUM_SAMPLE:
+
                     # Alignment dictionary keys are tuples of the two variant IDs
                     self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
 
