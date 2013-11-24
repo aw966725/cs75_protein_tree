@@ -198,12 +198,19 @@ class BLASTSpeciesPair (object):
                             # Add to relation list
                             self.relations.append((self.variant_a.gene_ID, self.variant_b.gene_ID, score))
 
+        # Store list of variant pairs
+        return variant_pairs
+
     # Categorize the proteins into "families" to decrease processing time
     def get_protein_families(self):
+
+
         return
 
-    # Score species pair by blasting each variant against each other
+    # Score species pair by checking the protein families against each other
     def score_species_pair(self):
+
+
         return
 
 
