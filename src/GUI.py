@@ -9,7 +9,8 @@
 #
 
 WINDOW_WIDTH = 640
-WINDOW_HEIGHT = 480
+WINDOW_HEIGHT = 640
+MAX_WORD = 20
 
 from tkinter import *
 import math
@@ -23,7 +24,7 @@ class PhyloTree(Frame):
         self.canvas = Canvas(self)
         
         self.initUI(clusters)
-        self.drawTree(300, 500, math.pi/2, 150, 5)
+        self.drawTree(0, WINDOW_HEIGHT/2, 0, 150, 4)
 
     def initUI(self, clusters):
         
@@ -35,19 +36,24 @@ class PhyloTree(Frame):
     def drawTree(self, x, y, angle, length, level):
         canvas = Canvas(self)
         if level == 0:
-            self.canvas.create_line(x, y, x + length * math.cos(angle), y - length * math.sin(angle))
+            self.canvas.create_line(x, y, x + length, y)
+            self.canvas.create_text((x + length + MAX_WORD), y, text="Rig", width=80)
 
         else:
-            self.canvas.create_line(x, y, x + length * math.cos(angle), y - length * math.sin(angle))
-            self.drawTree(x + length * math.cos(angle), 
-                     y - length * math.sin(angle), 
+            
+            #Change length for next iteration based on relationship strength
+            self.canvas.create_line(x, y, x + length, y)
+            self.canvas.create_line(x + length, y, x + length, y + length)
+            self.canvas.create_line(x + length, y, x + length, y - length)
+            self.drawTree(x + length, 
+                     y - length, 
                      angle + math.pi/4, 
-                     length * (2.0/3.0), level - 1)
+                     length * (1.0/2.0), level - 1)
 
-            self.drawTree(x + length * math.cos(angle), 
-                     y - length * math.sin(angle), 
+            self.drawTree(x + length, 
+                     y + length, 
                      angle - math.pi/4, 
-                     length * (2.0/3.0), level - 1)
+                     length * (1.0/2.0), level - 1)
 
 def main():
     
