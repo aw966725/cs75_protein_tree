@@ -171,7 +171,7 @@ class BLASTSpeciesPair (object):
         self.variant_pairs = self.get_alignments()
 
         # "Families" of related proteins
-        self.protein_families = []
+        self.protein_families = self.get_protein_families()
 
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
@@ -208,23 +208,29 @@ class BLASTSpeciesPair (object):
             initCentroid = variant_pairs[random.randint(0, len(variant_pairs))].variant_a
             clusters[initCentroid] = []
 
-            prev_clusters = {}
+        prev_clusters = {}
 
-            # Keep iterating until clusters don't change
-            while prev_clusters != clusters:
+        # Keep iterating until clusters don't change
+        while True:
                 
-                # Assign variants to closest clusters
-                for gene in self.species_a.genes:
-                    for variant in gene.variants:
-                        clusters = assign_to_cluster(variant, clusters)
-                        
-                for gene in self.species_b.genes:
-                    for variant in gene.variants:
-                        clusters = assign_to_cluster(variant, clusters)
-                                
-                prev_clusters = clusters
+            # Assign variants to closest clusters
+            for gene in self.species_a.genes:
+                for variant in gene.variants:
+                    clusters = assign_to_cluster(variant, clusters)
+                    
+            for gene in self.species_b.genes:
+                for variant in gene.variants:
+                     clusters = assign_to_cluster(variant, clusters)
 
-                clusters = recompute_centroids(prev_clusters)
+            #TODO: This might not test for equality properly, have to check
+            if clusters == prev_clusters:
+                break
+                
+            prev_clusters = clusters
+            clusters = recompute_centroids(prev_clusters)
+
+        return clusters
+            
             
                     
     # Assign a given variant to the closest cluster
