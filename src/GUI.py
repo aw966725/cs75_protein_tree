@@ -28,20 +28,37 @@ class PhyloTree(Frame):
         self.pack(fill=BOTH, expand=1)
         
         canvas = Canvas(self)
-        startx = 20
+        startx = 50
         starty = WINDOW_HEIGHT / 2
+        curx = startx
+        ydist = 0
+        colsize = 180
+        rowsize = 100
+
+        #determine this later
+        name_width = 70
         
-        #width should be text size divided by depth of clusters 
+        #width should be text size divided by depth of clusters
+        canvas.create_text(startx, starty, text=clusters, width=name_width)
 
-        canvas.create_text(startx, starty, text=clusters, width=80)
+        #width should be dependent on strength of relationship
+        curx = startx + colsize
+        canvas.create_line(startx + name_width, starty, curx, starty, width=2)
 
+        #compute ydist properly
+        canvas.create_line(curx, starty, curx, starty + rowsize, width=2)
+        canvas.create_line(curx, starty, curx, starty - rowsize, width=2)        
+    
+        
+        
+        
         canvas.pack(fill=BOTH, expand=1)
 
 def main():
     
     root = Tk()
     root.geometry(str(WINDOW_WIDTH) + "x" + str(WINDOW_HEIGHT)+ "+450+300")
-    tree = PhyloTree(root, "rig")
+    tree = PhyloTree(root, "Ciona intestinalis")
     root.mainloop()
 
 if __name__ == '__main__':

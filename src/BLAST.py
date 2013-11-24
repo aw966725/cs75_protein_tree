@@ -24,6 +24,7 @@
 from imports import *
 import math
 from collections import defaultdict
+from random import *
 
 import Matching
 import NormalLookup
@@ -194,11 +195,98 @@ class BLASTSpeciesPair (object):
                         variant_pairs.append(this_pair)
 
                         # Test for relation between these variants
-                        if 
+                        if
 
     # Categorize the proteins into "families" to decrease processing time
-    def get_protein_families(self):
-        return
+    def get_protein_families(self, num_families=3):
+
+        clusters = {}
+
+        # Randomly select initial variants for clustering
+        for i in range(num_families):
+            initCentroid = variant_pairs[random.randint(0, len(variant_pairs))].variant_a
+            clusters[initCentroid] = []
+
+            prev_clusters = {}
+
+            # Keep iterating until clusters don't change
+            while prev_clusters != clusters:
+                
+                # Assign variants to closest clusters
+                for gene in self.species_a.genes:
+                    for variant in gene.variants:
+                        clusters = assign_to_cluster(variant, clusters)
+                        
+                for gene in self.species_b.genes:
+                    for variant in gene.variants:
+                        clusters = assign_to_cluster(variant, clusters)
+                                
+                prev_clusters = clusters
+
+                clusters = recompute_centroids(prev_clusters)
+            
+                    
+    # Assign a given variant to the closest cluster
+    def assign_to_cluster(self, variant, clusters):
+        closest_centroid = None
+        score = 0
+        
+        #skip variant if it's one of the centroids
+        if variant in clusters:
+            return clusters
+        
+        # find all sets of pairs with the current variant present and
+        # keep track of the highest scoring centroid
+        for variant_pair in self.variant_pairs:
+            if variant == variant_pair.variant_a and variant_pair.variant_b in clusters:
+                if variant_pair.score > score:
+                    closest_centroid = variant_pair.variant_b
+                    score = variant_pair.score 
+                elif variant == variant_pair.variant_b and variant_pair.variant_a in clusters:
+                    if variant_pair.score > score:
+                        closest_centroid = variant_pair.variant_a
+                        score = variant_pair.score
+                        
+
+                        # add variant to highest scoring centroid's cluster
+                        if closest_centroid == None:
+                            print("Something's wrong")
+                        else
+                            clusters[closest_centroid].append(variant)
+        
+        return clusters
+
+    # ASSUMES THERE WILL BE VARIANT PAIRS FOR EVERY SET OF VARIANTS
+    def recompute_centroids(self, clusters):
+        new_clusters = {}
+        
+        for centroid : clusters:
+            avg_scores = {}
+            
+            # Get list of variants in the cluster
+            variants = clusters[centroid]
+            variants.append(centroid)
+
+            # For each variant, compute avg distance between other variants
+            for variant1 in variants:
+                avg_scores[variant1] = 0
+                for variant2 in variants:
+                    if variant1 == variant2:
+                        continue
+
+                    # Find variant_pair of variant1corresponding to each variant2 to compute average score
+                    for variant_pair in self.variant_pairs:
+                        if (variant_pair.variant_a == variant1 and variant_pair.variant_b == variant2)
+                            or (variant_pair.variant_b == variant1 and variant_pair.variant_a == variant2:
+                            avg_scores[variant1] += variant_pair.score
+                avg_scores[variant1] /= len(variants)
+
+            new_centroid = max(avg_scores, key=avg_scores.get)
+            new_clusters[new_centroid] = []
+
+        return new_clusters
+
+            
 
     # Score species pair by blasting each variant against each other
     def score_species_pair(self):
