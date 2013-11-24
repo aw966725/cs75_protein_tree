@@ -12,6 +12,7 @@ WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
 
 from tkinter import *
+import math
 
 class PhyloTree(Frame):
     
@@ -19,29 +20,40 @@ class PhyloTree(Frame):
         Frame.__init__(self, window)
 
         self.window = window 
-
+        self.canvas = Canvas(self)
+        
         self.initUI(clusters)
+        self.drawTree(300, 500, math.pi/2, 150, 5)
 
     def initUI(self, clusters):
         
         self.window.title("Phylogenetic Tree")
         self.pack(fill=BOTH, expand=1)
-        
+
+        self.canvas.pack(fill=BOTH, expand=1)
+
+    def drawTree(self, x, y, angle, length, level):
         canvas = Canvas(self)
-        startx = 20
-        starty = WINDOW_HEIGHT / 2
-        
-        #width should be text size divided by depth of clusters 
+        if level == 0:
+            self.canvas.create_line(x, y, x + length * math.cos(angle), y - length * math.sin(angle))
 
-        canvas.create_text(startx, starty, text=clusters, width=80)
+        else:
+            self.canvas.create_line(x, y, x + length * math.cos(angle), y - length * math.sin(angle))
+            self.drawTree(x + length * math.cos(angle), 
+                     y - length * math.sin(angle), 
+                     angle + math.pi/4, 
+                     length * (2.0/3.0), level - 1)
 
-        canvas.pack(fill=BOTH, expand=1)
+            self.drawTree(x + length * math.cos(angle), 
+                     y - length * math.sin(angle), 
+                     angle - math.pi/4, 
+                     length * (2.0/3.0), level - 1)
 
 def main():
     
     root = Tk()
     root.geometry(str(WINDOW_WIDTH) + "x" + str(WINDOW_HEIGHT)+ "+450+300")
-    tree = PhyloTree(root, "rig")
+    tree = PhyloTree(root, "Ciona intestinalis")
     root.mainloop()
 
 if __name__ == '__main__':
