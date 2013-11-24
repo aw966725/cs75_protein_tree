@@ -249,17 +249,17 @@ class BLASTSpeciesPair (object):
                 if variant_pair.score > score:
                     closest_centroid = variant_pair.variant_b
                     score = variant_pair.score 
-                elif variant == variant_pair.variant_b and variant_pair.variant_a in clusters:
-                    if variant_pair.score > score:
-                        closest_centroid = variant_pair.variant_a
-                        score = variant_pair.score
+            elif variant == variant_pair.variant_b and variant_pair.variant_a in clusters:
+                if variant_pair.score > score:
+                    closest_centroid = variant_pair.variant_a
+                    score = variant_pair.score
                         
 
-                        # add variant to highest scoring centroid's cluster
-                        if closest_centroid == None:
-                            print("Something's wrong")
-                        else:
-                            clusters[closest_centroid].append(variant)
+        # add variant to highest scoring centroid's cluster
+        if closest_centroid == None:
+            print("Something's wrong")
+        else:
+            clusters[closest_centroid].append(variant)
         
         return clusters
 
@@ -285,6 +285,7 @@ class BLASTSpeciesPair (object):
                     for variant_pair in self.variant_pairs:
                         if (variant_pair.variant_a == variant1 and variant_pair.variant_b == variant2) or (variant_pair.variant_b == variant1 and variant_pair.variant_a == variant2):
                             avg_scores[variant1] += variant_pair.score
+
                 avg_scores[variant1] /= len(variants)
 
             new_centroid = max(avg_scores, key=avg_scores.get)
