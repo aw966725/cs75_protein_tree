@@ -195,7 +195,8 @@ class BLASTSpeciesPair (object):
                         variant_pairs.append(this_pair)
 
                         # Test for relation between these variants
-                        if
+                        #if
+        return
 
     # Categorize the proteins into "families" to decrease processing time
     def get_protein_families(self, num_families=3):
@@ -251,7 +252,7 @@ class BLASTSpeciesPair (object):
                         # add variant to highest scoring centroid's cluster
                         if closest_centroid == None:
                             print("Something's wrong")
-                        else
+                        else:
                             clusters[closest_centroid].append(variant)
         
         return clusters
@@ -260,7 +261,7 @@ class BLASTSpeciesPair (object):
     def recompute_centroids(self, clusters):
         new_clusters = {}
         
-        for centroid : clusters:
+        for centroid in clusters:
             avg_scores = {}
             
             # Get list of variants in the cluster
@@ -276,8 +277,7 @@ class BLASTSpeciesPair (object):
 
                     # Find variant_pair of variant1corresponding to each variant2 to compute average score
                     for variant_pair in self.variant_pairs:
-                        if (variant_pair.variant_a == variant1 and variant_pair.variant_b == variant2)
-                            or (variant_pair.variant_b == variant1 and variant_pair.variant_a == variant2:
+                        if (variant_pair.variant_a == variant1 and variant_pair.variant_b == variant2) or (variant_pair.variant_b == variant1 and variant_pair.variant_a == variant2):
                             avg_scores[variant1] += variant_pair.score
                 avg_scores[variant1] /= len(variants)
 
