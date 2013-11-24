@@ -12,6 +12,7 @@ WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
 
 from tkinter import *
+import math
 
 class PhyloTree(Frame):
     
@@ -19,40 +20,34 @@ class PhyloTree(Frame):
         Frame.__init__(self, window)
 
         self.window = window 
-
+        self.canvas = Canvas(self)
+        
         self.initUI(clusters)
+        self.drawTree(300, 500, math.pi/2, 150, 5)
 
     def initUI(self, clusters):
         
         self.window.title("Phylogenetic Tree")
         self.pack(fill=BOTH, expand=1)
-        
+
+        self.canvas.pack(fill=BOTH, expand=1)
+
+    def drawTree(self, x, y, angle, length, level):
         canvas = Canvas(self)
-        startx = 50
-        starty = WINDOW_HEIGHT / 2
-        curx = startx
-        ydist = 0
-        colsize = 180
-        rowsize = 100
+        if level == 0:
+            self.canvas.create_line(x, y, x + length * math.cos(angle), y - length * math.sin(angle))
 
-        #determine this later
-        name_width = 70
-        
-        #width should be text size divided by depth of clusters
-        canvas.create_text(startx, starty, text=clusters, width=name_width)
+        else:
+            self.canvas.create_line(x, y, x + length * math.cos(angle), y - length * math.sin(angle))
+            self.drawTree(x + length * math.cos(angle), 
+                     y - length * math.sin(angle), 
+                     angle + math.pi/4, 
+                     length * (2.0/3.0), level - 1)
 
-        #width should be dependent on strength of relationship
-        curx = startx + colsize
-        canvas.create_line(startx + name_width, starty, curx, starty, width=2)
-
-        #compute ydist properly
-        canvas.create_line(curx, starty, curx, starty + rowsize, width=2)
-        canvas.create_line(curx, starty, curx, starty - rowsize, width=2)        
-    
-        
-        
-        
-        canvas.pack(fill=BOTH, expand=1)
+            self.drawTree(x + length * math.cos(angle), 
+                     y - length * math.sin(angle), 
+                     angle - math.pi/4, 
+                     length * (2.0/3.0), level - 1)
 
 def main():
     
