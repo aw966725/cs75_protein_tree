@@ -37,7 +37,7 @@ MINIMUM_SAMPLE = 100
 # Class for holding general information about the application of a BLAST algorithm
 class BLASTInfo (object):
 
-    # Initialize - takes a list of FASTAFile objects, word length, substitution matrix, and threshold
+    ##C    # Initialize - takes a list of FASTAFile objects, word length, substitution matrix, and threshold
     def __init__(self, matrix=DEFAULT_SUB_MATRIX, word_length=DEFAULT_WORD_LEN, 
         threshold=DEFAULT_THRESHOLD):
 
@@ -213,7 +213,7 @@ class BLASTSpeciesPair (object):
         return
 
     # Categorize the proteins into "families" to decrease processing time
-    def get_protein_families(self, num_families=3):
+    def get_protein_families(self, num_families=3, iterations=100):
 
         clusters = {}
 
@@ -225,6 +225,7 @@ class BLASTSpeciesPair (object):
         prev_clusters = {}
 
         # Keep iterating until clusters don't change
+        iterations = 0
         while True:
                 
             # Assign variants to closest clusters
@@ -237,12 +238,14 @@ class BLASTSpeciesPair (object):
                      clusters = assign_to_cluster(variant, clusters)
 
             #TODO: This might not test for equality properly, have to check
-            if clusters == prev_clusters:
+            if clusters == prev_clusters or iterations == numiterations:
                 break
                 
             prev_clusters = clusters
             clusters = recompute_centroids(prev_clusters)
 
+            iterations+=1
+            
         return clusters
             
             
@@ -252,8 +255,9 @@ class BLASTSpeciesPair (object):
         closest_centroid = None
         score = 0
         
-        #skip variant if it's one of the centroids
+        # add variant if it's the centroids
         if variant in clusters:
+            clusters[variant].append(variant)
             return clusters
         
         # find all sets of pairs with the current variant present and
@@ -286,7 +290,6 @@ class BLASTSpeciesPair (object):
             
             # Get list of variants in the cluster
             variants = clusters[centroid]
-            variants.append(centroid)
 
             # For each variant, compute avg distance between other variants
             for variant1 in variants:
@@ -295,7 +298,7 @@ class BLASTSpeciesPair (object):
                     if variant1 == variant2:
                         continue
 
-                    # Find variant_pair of variant1corresponding to each variant2 to compute average score
+                    # Find variant_pair of variant1 corresponding to each variant2 to compute average score
                     for variant_pair in self.variant_pairs:
                         if (variant_pair.variant_a == variant1 and variant_pair.variant_b == variant2) or (variant_pair.variant_b == variant1 and variant_pair.variant_a == variant2):
                             avg_scores[variant1] += variant_pair.score
