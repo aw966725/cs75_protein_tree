@@ -370,7 +370,7 @@ class BLASTVariantPair (object):
                 align_length += 1
                 score += self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]]
 
-        while (i <= len(self.variant_a.sequence) and j <= len(self.variant_b.sequence) 
+        while (i + align_length <= len(self.variant_a.sequence) and j + align_length <= len(self.variant_b.sequence) 
         and self.info.matrix[self.variant_a.sequence[i+align_length], self.variant_b.sequence[j+align_length]] > 0):
             align_length += 1
             score += self.info.matrix[self.variant_a.sequence[i+align_length], self.variant_b.sequence[j+align_length]]
@@ -402,6 +402,8 @@ class BLASTVariantPair (object):
 
                     # Alignment dictionary keys are tuples of the two variant IDs
                     self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
+
+                count += 1
 
         # Recalculate score threshold
         self.info.recalculate_alignment_threshold_score()
