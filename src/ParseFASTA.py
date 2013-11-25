@@ -15,30 +15,16 @@
 import os
 from collections import defaultdict
 
+
+## DEFINITIONS
+
 # Maximum FASTA file size in MB that this code is tested to work with
 # Allows bigger files, but prints a warning
 MAX_FILE_SIZE_MB = 20
 MAX_FILE_SIZE_B = MAX_FILE_SIZE_MB * 1048576
 
-# Class representing an individual FASTA record
-# Based on code by Sara Thiebaud
-class FASTARecord:
 
-    # New instance - takes variant ID, gene ID, peptide type, chromosome encoding, 
-    # gene sequence
-    def __init__(self, variant_ID, gene_ID, pep_type, chromosome, gene_seq):
-
-        self.variant = variant_ID
-        self.gene = gene_ID
-        self.peptide_type = pep_type
-        self.chromosome = chromosome
-        self.sequence = gene_seq
-        self.num_records = 0
-
-    # Get length of gene sequence
-    def __len__(self):
-        return len(self.sequence)
-
+## CLASSES
 
 # Class representing a FASTA file (contains reading and parsing methods)
 # Based on code by Sara Thiebaud
@@ -154,3 +140,24 @@ class FASTAFile (object):
         except IOError:
             print("Could not open FASTA file.\n")
             return None
+
+
+# Class representing an individual FASTA record
+# Based on code by Sara Thiebaud
+class FASTARecord:
+
+    # New instance - takes variant ID, gene ID, peptide type, chromosome encoding, 
+    # gene sequence
+    def __init__(self, variant_ID, gene_ID, pep_type, chromosome, gene_seq):
+
+        self.variant = variant_ID
+        self.gene = gene_ID
+        self.peptide_type = pep_type
+        self.chromosome = chromosome
+        self.sequence = gene_seq
+        self.num_records = 0
+
+    # Get length of gene sequence
+    def __len__(self):
+        return len(self.sequence)
+
