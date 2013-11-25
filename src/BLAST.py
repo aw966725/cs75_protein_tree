@@ -26,7 +26,7 @@ DEFAULT_SUB_MATRIX = SubstitutionMatrix.blosum62
 
 # Score threshold percentage - i.e. match must be in the X highest percent of scores
 # evaluated thus far or it is discarded
-DEFAULT_THRESHOLD = 5
+DEFAULT_THRESHOLD = 1
 
 # Minimum sample - the number of samples at which we begin to test the threshold
 MINIMUM_SAMPLE = 100
@@ -142,7 +142,7 @@ class BLASTSpeciesPair (object):
                 for gene_b in self.species_b.genes:
                     for variant_b in gene_b.variants:
 
-                        print("Getting Alignment ", count, "/ ",  minimum, "...")
+                        print("Getting Alignment ", count, "/", minimum, "...")
                         count += 1
                         # Create a BLASTVariantPair object and get the alignments
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)

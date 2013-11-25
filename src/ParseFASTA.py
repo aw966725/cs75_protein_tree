@@ -23,6 +23,7 @@ from collections import defaultdict
 MAX_FILE_SIZE_MB = 20
 MAX_FILE_SIZE_B = MAX_FILE_SIZE_MB * 1048576
 
+MAX_ENTRIES = 100
 
 ## CLASSES
 
@@ -52,8 +53,12 @@ class FASTAFile (object):
 
     # Read in a file and parse data into FASTARecord objects
     def read_and_parse(self):
+        count = 0
+
         # Iterate through lines, parsing fields (they are reproducible widths)
         for line in self.file:
+            if count > MAX_ENTRIES:
+                break
 
             # Handle trailing newlines and strip before parsing
             if line[-1] == '\n':
@@ -63,6 +68,8 @@ class FASTAFile (object):
             # Check for beginning of FASTA record (not every new line)!
             # Retrieve all information here
             if line[:1] == '>':
+                count += 1
+
                 self.num_records += 1
 
                 # Split the line on spaces into fields for easier parsing
