@@ -107,7 +107,29 @@ def test_matching(logger, file_list):
     logger.debug("DONE testing matching object creation from FASTA record.")
     logger.debug("")
 
-    return
+    return tree
+
+
+# Test BLAST
+def test_BLAST(logger, blast_info, phylo_tree):
+
+    logger.debug("BEGIN testing BLAST functionality from matching objects...")
+
+    if len(phylo_tree) < 2:
+        print("Need more than 1 species to fully test BLAST!")
+
+    species_pairs = []
+
+    logger.debug("Running...")
+    for index_1 in range(len(phylo_tree)):
+        for index_2 in range(len(phylo_tree)):
+            if index_1 != index_2:
+                species_pairs.append(BLASTSpeciesPair(phylo_tree.species[index_1], 
+                    phylo_tree.species[index_2]))
+                logger.debug("Added pair %s - %s", phylo_tree.species[index_1].species,
+                    phylo_tree.species[index_2].species)
+
+    logger.debug("DONE testing BLAST functionality from matching objects.")
 
 
 # Test phylobuilder main
@@ -150,7 +172,12 @@ def test_project():
     records_list.append(file_records_1)
     records_list.append(file_records_2)
 
-    test_matching(logger, records_list)
+    phylo_tree = test_matching(logger, records_list)
+
+    # Test BLAST - default parameters
+    blast_info = BLASTInfo()
+
+    test_BLAST(logger, blast_info, phylo_tree)
 
     return
 

@@ -238,7 +238,6 @@ class BLASTSpeciesPair (object):
             
         return clusters
             
-            
                     
     # Assign a given variant to the closest cluster
     def assign_to_cluster(self, variant, clusters):
