@@ -19,8 +19,7 @@ class SpeciesClusters(object):
         self.clusters = compute_clusters()
 
 
-    # computes species clusters based on profiles
-    # Heirarchical?
+    # Computes species clusters based on profiles
     def compute_clusters(self):
         profile_list = self.profiles.profile_list
 
@@ -28,21 +27,93 @@ class SpeciesClusters(object):
         # average scores of checks against each in cluster?
         clusters = []
 
-        # level to assess depth of cluster formation
+        # Level to assess depth of cluster formation
         level = 0
         for profile in profile_list:
-            cluster = { count : ([profile], level)}
-            clusters.append(cluster)
-
-        #compute min distance and cluster
-        (x, y) = compute_min_pair(clusters)
-
-
-    def compute_min_pair(clusters):
-        for cluster in clusters:
-            p
-
+            cluster = [profile]
+            clusters[level] = []
+            clusters[level].append(cluster)
         
+        while len(clusters) > 1:
+            # go to next level
+            level += 1
+            
+            #compute min distance and cluster
+            (cluster1, cluster2) = compute_most_similar_pair(clusters)
+            
+            clusters[level] = []
+            for cluster in clusters:
+                
+                # Merge cluster1 and cluster2 into a new cluster at cur level
+                if cluster == cluster1:
+                    #copy cluster into new cluster
+                    new_cluster = list(cluster)
+                    new_cluster.append(cluster2)
+                    clusters[level].append(new_cluster)
+                    
+                    # Remove second cluster because merged with first cluster at cur level
+                elif cluster == cluster2:
+                    clusters.remove(cluster2)
+                    
+                    # If not part of group, just readd as is to next level
+                else:
+                    clusters[level].append(cluster)
+
+        return clusters
+        
+
+    # Computes the most similar cluster pair
+    def compute_most_similar_pair(clusters):
+        max_pair = (None, None)
+        max_similarity = 0
+
+        # Check each set of profiles against all others
+        for test_cluster in clusters:
+            test_profiles = test_cluster
+
+            for other_cluster in clusters:
+                if test_cluster == other_cluser:
+                    continue
+                
+                other_profiles = other_cluster
+                cur_best = compute_cluster_similarity(test_profiles, other_profiles)
+
+                if cur_best > max_similarity:
+                    max_similarity = curbest
+                    max_pair = (test_cluster, other_cluster)
+
+        return max_pair
+            
+
+    # Currently rudimentary: minimum distance between any two profiles
+    # Computes the similarity measure between two profile sets corresponding to clusters
+    def compute_cluster_similarity(profiles, others):
+        max_similarity = 0
+        
+        for profile in profiles:
+            for other in others:
+
+                #NOTE: profile should never be in both lists
+                if profile == other:
+                    print "uh oh"
+                    
+                cur_similarity = compute_profile_similarity(profile, other)
+                if cur_similarity > max_similarity:
+                    max_similarity = cur_similarity
+
+        return max_similarity
+
+    # Computes similarity measured by summing presence of proteins in common families
+    def compute_profile_similarity(profile1, profile2):
+        v1 = profile1.profile_vector
+        v2 = profile2.profile_vector
+        count = 0
+        
+        for family in self.protein_families:
+            if v1[family] == 1 and v2[family] == 1:
+                count+=1
+                
+        return count
         
 
 
@@ -72,19 +143,19 @@ class Profile(object):
         self.species = species
         self.species_proteins = species.genes.variants
         self.protein_families = protein_families
-        self.profile = initialize_profile(self)
+        self.profile_vector = initialize_profile(self)
         compute_profile()
 
     # Initialize profile to all zeroes (not present)
     def initialize_profile(self):
-        profile = {}
+        profile_vector = {}
 
         # Initialize all protein families to not present
         for family in self.protein_families:
 
             # Are we doing partial points for variants now that we're
             # doing families?
-            profile[family] = 0
+            profile_vector[family] = 0
 
         return profile
 
@@ -96,7 +167,7 @@ class Profile(object):
 
             for member in members:
                 if member in self.species_proteins:
-                    self.profile[family] = 1
+                    self.profile_vector[family] = 1
                     break
 
 
