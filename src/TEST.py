@@ -105,6 +105,7 @@ def test_matching(logger, file_list):
     logger.debug("Parent Gene ID: %s", first_variant.gene_ID)
 
     logger.debug("DONE testing matching object creation from FASTA record.")
+    logger.debug("")
 
     return
 

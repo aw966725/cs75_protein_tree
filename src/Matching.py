@@ -71,7 +71,7 @@ class Gene (object):
     def __init__(self, variants, species=None):
 
         # Information about gene overall
-        self.gene_ID = variants[0]
+        self.gene_ID = variants[0].gene
         self.num_variants = len(variants)
         self.variant_IDs = [var.variant for var in variants]
 
