@@ -69,6 +69,7 @@ def test_load_parse(logger):
             logger.debug("Variant ID %d: %s", sub_index, variant_ID)
 
     logger.debug("DONE testing FASTA file LOAD and PARSE functionality.")
+    logger.debug("")
 
     return
 
@@ -102,6 +103,7 @@ def get_logger():
     logger.addHandler(handler)
 
     logger.debug("Created logger object.")
+    logger.debug("")
 
     return logger
 
