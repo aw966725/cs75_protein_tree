@@ -95,7 +95,7 @@ class SpeciesClusters(object):
 
                 #NOTE: profile should never be in both lists
                 if profile == other:
-                    print "uh oh"
+                    print("uh oh")
                     
                 cur_similarity = compute_profile_similarity(profile, other)
                 if cur_similarity > max_similarity:
