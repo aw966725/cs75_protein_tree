@@ -45,7 +45,6 @@ class BLASTInfo (object):
         self.matrix = matrix
         self.word_length = word_length
         self.threshold = threshold
-        self.all_words = self.get_all_words(matrix, word_length)
 
         # Dynamically adjust matching threshold
         self.total_match_score = 0
@@ -60,32 +59,6 @@ class BLASTInfo (object):
         self.relation_threshold_score = 0
 
         self.alignments = defaultdict(list)
-
-    # Here we get a list of all possible word_length length words in matrix and store it
-    def get_all_words(self, matrix, word_length):
-        all_words = []
-        count = 0
-        return self.get_all_words_helper(all_words, matrix, count, word_length)
-
-    # Recursive helper method for getting all words
-    # Takes a word list, sub matrix, char count so far, word length
-    def get_all_words_helper(self, word_list, matrix, count, word_length):
-        # Base case
-        if count == word_length:
-            return word_list
-
-        # Recursive case
-        words_so_far = len(word_list)
-        for i in range(words_so_far):
-            # Add all new possible permutations
-            for j in range(len(matrix)):
-                new_word = word_list[i] + matrix[j]
-                word_list.append(new_word)
-            # Remove old base word
-            word_list.pop(i)
-
-        # Call again with new word list and longer length
-        return self.get_all_words_helper(word_list, matrix, count + 1, word_length)
 
     # Re-calculate the approximated threshold score after each new matching
     def recalculate_threshold_score(self):
@@ -116,8 +89,9 @@ class BLASTInfo (object):
     def BLAST_score(self, seq_a, seq_b):
         score = 0
         marg_score = 0
-        for i in range(self.word_length):
-            marg_score += self.matrix[seq_a[i], seq_b[i]]
+        if len(seq_a) >= self.word_length and len(seq_b) >= self.word_length:
+            for i in range(self.word_length):
+                marg_score += self.matrix[seq_a[i], seq_b[i]]
 
         score += marg_score
         self.total_match_score += marg_score
@@ -346,10 +320,13 @@ class BLASTVariantPair (object):
         # Get initial indices in full sequence and initial score
         i = self.variant_a.sequence.find(query)
         j = self.variant_b.sequence.find(word[0])
+        if i == -1 or j == -1:
+            return (None, None, 0)
+
         align_length = 0
         score = self.info.BLAST_score(query, word)
 
-        while (i >= 0 and j >= 0 and self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]] > 0):
+        while (i > 0 and j > 0 and self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]] > 0):
                 i -= 1
                 j -= 1
                 align_length += 1
@@ -373,13 +350,15 @@ class BLASTVariantPair (object):
         threshold_words = self.get_threshold_words()
         for (query, word_list) in threshold_words.items():
             for word in word_list:
-                print("Getting Alignment %d...", count)
+                print("Getting Alignment ", count, "...")
                 best = self.get_best_alignment_BLAST(query, word[0])
 
-                # Alignment dictionary keys are tuples of the two variant IDs
-                self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
+                if best[2] > 0:
 
-                count += 1
+                    # Alignment dictionary keys are tuples of the two variant IDs
+                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
+
+                    count += 1
 
         return
 
