@@ -283,12 +283,6 @@ class BLASTSpeciesPair (object):
 
         return new_clusters
 
-    # Score species pair by checking the protein families against each other
-    def score_species_pair(self):
-
-
-        return
-
 
 # Class for containing BLAST alignment data for a given pair of Variants
 class BLASTVariantPair (object):
