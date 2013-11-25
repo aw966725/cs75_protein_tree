@@ -11,7 +11,7 @@
 # Blosum62 alphabet matrix code from COSC 75 Homework 1
 #
 
-import ParseFASTA
+from ParseFASTA import *
 from imports import *
 
 

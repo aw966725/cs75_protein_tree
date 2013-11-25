@@ -10,9 +10,9 @@
 
 from sys import argv
 
-import GUI
-import ParseFASTA
-import Matching
+from GUI import *
+from ParseFASTA import *
+from Matching import *
 
 
 def run_phylobuilder():

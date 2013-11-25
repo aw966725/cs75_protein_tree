@@ -14,8 +14,8 @@ import math
 from collections import defaultdict
 from random import *
 
-import Matching
-import NormalLookup
+from Matching import *
+from NormalLookup import *
 
 
 ## DEFINITIONS
@@ -97,9 +97,9 @@ class BLASTInfo (object):
     def recalculate_threshold_score(self):
 
         # Get Z-score
-        mean = total_match_score / total_number_matches
-        std_dev = math.pow(((pow(self.total_match_squared_score), 2) / self.total_number_matches)
-            - pow(mean, 2))
+        mean = self.total_match_score / self.total_number_matches
+        std_dev = math.pow((pow(self.total_match_squared_score, 2) / self.total_number_matches)
+            - pow(mean, 2), 0.5)
         z = lookup_z_score(100 - self.threshold)
 
         # Get approximate threshold score
@@ -110,9 +110,9 @@ class BLASTInfo (object):
     def recalculate_alignment_threshold_score(self):
 
         # Get Z-score
-        mean = total_align_score / total_number_aligns
-        std_dev = math.pow(((pow(self.total_align_squared_score), 2) / self.total_number_aligns)
-            - pow(mean, 2))
+        mean = self.total_align_score / self.total_number_aligns
+        std_dev = math.pow((pow(self.total_align_squared_score, 2) / self.total_number_aligns)
+            - pow(mean, 2), 0.5)
         z = lookup_z_score(100 - self.threshold)
 
         # Get approximate threshold score
@@ -123,19 +123,20 @@ class BLASTInfo (object):
     def recalculate_relation_threshold_score(self):
 
         # Get Z-score
-        mean = total_relation_score / total_number_relations
-        std_dev = math.pow(((pow(self.total_relation_squared_score), 2) / self.total_number_relations)
-            - pow(mean, 2))
+        mean = self.total_relation_score / self.total_number_relations
+        std_dev = math.pow((pow(self.total_relation_squared_score, 2) / self.total_number_relations)
+            - pow(mean, 2), 0.5)
         z = lookup_z_score(100 - self.threshold)
 
         # Get approximate threshold score
         self.align_threshold_score = (z * std_dev) + mean
 
     # Score two words of length "word_length" using the given substitution matrix
-    def BLAST_score(self, seq_a, seq_b, matrix, word_length):
+    def BLAST_score(self, seq_a, seq_b):
+        score = 0
         marg_score = 0
-        for i in range(word_length):
-            marg_score += matrix[seq_a[i]][seq_b[i]]
+        for i in range(self.word_length):
+            marg_score += self.matrix[seq_a[i], seq_b[i]]
 
         score += marg_score
         self.total_match_score += marg_score
@@ -325,7 +326,7 @@ class BLASTVariantPair (object):
             self.info = None
 
         # BLAST these protein sequences against each other and obtain score
-        self.score = score_variant_pair()
+        self.score = self.score_variant_pair()
 
     # Get the threshold-tested words in each of the subsequences
     def get_threshold_words(self):
@@ -335,18 +336,19 @@ class BLASTVariantPair (object):
         for i in range(len(self.variant_a.sequence) - self.info.word_length + 1):
             for j in range(len(self.variant_b.sequence) - self.info.word_length + 1):
 
-                score = BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
-                    self.variant_b.sequence[j:j+word_length])
+                score = self.info.BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
+                    self.variant_b.sequence[j:j+self.info.word_length])
 
-                if (score > self.info.threshold_score) or (self.total_number_matches< MINIMUM_SAMPLE):
+                if (score > self.info.threshold_score) or (self.info.total_number_matches< MINIMUM_SAMPLE):
 
                     # If this is the first time we cross minimum sample, remove old values lower than threshold
-                    if self.total_number_matches == MINIMUM_SAMPLE:
-                        for (query, info) in threshold_words.items():
-                            if info[1] < self.info.threshold_score:
-                                threshold_words.get(query).remove(info[0])
+                    if self.info.total_number_matches == MINIMUM_SAMPLE:
+                        for (query, t_word_list) in threshold_words.items():
+                            for query_info in t_word_list:
+                                if query_info[1] < self.info.threshold_score:
+                                    threshold_words.get(query).remove(query_info)
                 
-                    threshold_words[self.variant_a.sequence[i:i+self.info.word_length]].append((self.variant_b.sequence[j:j+self.infoword_length], score))
+                    threshold_words[self.variant_a.sequence[i:i+self.info.word_length]].append((self.variant_b.sequence[j:j+self.info.word_length], score))
 
         # Recalculate threshold
         self.info.recalculate_threshold_score()
@@ -358,12 +360,12 @@ class BLASTVariantPair (object):
 
         # Get initial indices in full sequence and initial score
         i = self.variant_a.sequence.find(query)
-        j = self.variant_b.sequence.find(word)
+        j = self.variant_b.sequence.find(word[0])
         align_length = 0
-        score = BLAST_score(query, word, self.info.matrix, self.info.word_length)
+        score = self.info.BLAST_score(query, word)
 
         while i > 0 and j > 0:
-            while self.info.matrix[self.variant_a.sequence[i-1]][self.variant_b.sequence[j-1]] > 0:
+            while self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]] > 0:
                 i -= 1
                 j -= 1
                 align_length += 1
@@ -381,11 +383,14 @@ class BLASTVariantPair (object):
     # BLAST alignment function - takes two sequences
     def align_BLAST(self, seq_a, seq_b):
 
+        count = 0
+
         # Get threshold-tested words
-        threshold_words = get_threshold_words()
+        threshold_words = self.get_threshold_words()
         for (query, word_list) in threshold_words.items():
             for word in word_list:
-                best = get_best_alignment_BLAST(query, word)
+                print("Getting Alignment %d...", count)
+                best = self.get_best_alignment_BLAST(query, word[0])
                 if best[2] > self.info.align_threshold_score or self.info.total_number_aligns < MINIMUM_SAMPLE:
 
                     # If this is the first time we pass minimum sample, clear alignments with a lower score
@@ -403,5 +408,5 @@ class BLASTVariantPair (object):
 
     # Scores an alignment of a pair of variants by blasting them and summing acceptable alignments
     def score_variant_pair(self):
-        align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
+        self.align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
         return sum(self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)])
