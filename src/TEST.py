@@ -19,12 +19,45 @@ import Profiling
 import Phylobuilder
 
 
+# Test GUI functionality
+def test_gui():
+
+    print("rig")
+
+    return
+
+
+# Test loading and parsing a FASTA file
+def test_load_parse():
+    
+    print("rig")
+
+    return
+
+
+# Test matching objects
+def test_matching():
+
+    print("rig")
+
+    return
+
+
+# Test phylobuilder main
+def test_builder():
+
+    print("rig")
+
+    return
+
+
+# Run all tests
 def test_project():
 
     print("rig")
 
     return
-    
+
 
 if __name__ == '__main__':
     ## TODO: USER ARGS STUFF HERE
