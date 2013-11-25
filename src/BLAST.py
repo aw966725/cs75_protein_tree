@@ -163,6 +163,7 @@ class BLASTSpeciesPair (object):
         # "Families" of related proteins
         self.protein_families = self.get_protein_families()
 
+        self.info = None
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
@@ -316,6 +317,7 @@ class BLASTVariantPair (object):
         self.variant_a = variant_a
         self.variant_b = variant_b
 
+        self.info = None
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
