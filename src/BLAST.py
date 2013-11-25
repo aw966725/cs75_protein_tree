@@ -185,6 +185,10 @@ class BLASTSpeciesPair (object):
                             # Add to relation list
                             self.relations.append((variant_a.gene_ID, variant_b.gene_ID, score))
 
+                        self.info.total_number_relations += 1
+                        self.info.total_relation_score += score
+                        self.info.total_relation_squared_score += pow(score, 2)
+
         # Store list of variant pairs
         return variant_pairs
 
@@ -316,7 +320,7 @@ class BLASTVariantPair (object):
                 score = self.info.BLAST_score(self.variant_a.sequence[i:i+self.info.word_length],
                     self.variant_b.sequence[j:j+self.info.word_length])
 
-                if (score > self.info.threshold_score) or (self.info.total_number_matches< MINIMUM_SAMPLE):
+                if (score > self.info.threshold_score) or (self.info.total_number_matches < MINIMUM_SAMPLE):
 
                     # If this is the first time we cross minimum sample, remove old values lower than threshold
                     if self.info.total_number_matches == MINIMUM_SAMPLE:
@@ -326,6 +330,10 @@ class BLASTVariantPair (object):
                                     threshold_words.get(query).remove(query_info)
                 
                     threshold_words[self.variant_a.sequence[i:i+self.info.word_length]].append((self.variant_b.sequence[j:j+self.info.word_length], score))
+
+                self.info.total_number_matches += 1
+                self.info.total_match_score += score
+                self.info.total_match_squared_score += pow(score, 2)
 
         # Recalculate threshold
         self.info.recalculate_threshold_score()
