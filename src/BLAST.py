@@ -45,7 +45,7 @@ class BLASTInfo (object):
         self.matrix = matrix
         self.word_length = word_length
         self.threshold = threshold
-        self.all_words = self.get_all_possible_words(matrix, word_length)
+        self.all_words = self.get_all_words(matrix, word_length)
 
         # Dynamically adjust matching threshold
         self.total_match_score = 0
