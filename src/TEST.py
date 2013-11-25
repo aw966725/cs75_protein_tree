@@ -8,6 +8,9 @@
 # phylogenetic profiling project.
 #
 
+import time
+import logging
+
 from imports import *
 
 import ParseFASTA
@@ -24,77 +27,93 @@ import Phylobuilder
 TEST_FILE_1 = "../datasets/Saccharomyces_cerevisiae.EF4.73.pep.all.fa"
 TEST_FILE_1_SPECIES = "Saccharomyces Cerevisiae"
 
+LOG_FILE_PREFIX = "TEST_"
+LOG_FILE_SUFFIX = ".txt"
+
+LOGGER_NAME = "phylo_logger"
+
 
 ## FUNCTIONS
 
 # Test GUI functionality
-def test_gui():
+def test_gui(logger):
 
-    print("rig")
+    logger.info("rig")
 
     return
 
 
 # Test loading and parsing a FASTA file
-def test_load_parse():
+def test_load_parse(logger):
 
-    print("######################################")
-    print("Testing FASTA file LOAD and PARSE functionality...")
-    print("######################################")
-    print()
+    logger.info("Testing FASTA file LOAD and PARSE functionality...")
 
-    print("Filename: ", TEST_FILE_1)
-    print("Species: ", TEST_FILE_1_SPECIES)
-    print()
+    logger.info("Filename: %s", TEST_FILE_1)
+    logger.info("Species: %s", TEST_FILE_1_SPECIES)
     
     file_reader = FASTAFile(TEST_FILE_1, TEST_FILE_1_SPECIES)
 
     num_genes = file_reader.get_num_unique_genes()
-    print("Number of unique genes in ", file_reader.species, ": ", num_genes)
-    print()
+    logger.info("Number of unique genes in %s: %d", file_reader.species, num_genes)
 
     gene_IDs = file_reader.get_unique_gene_IDs()
-    print("Here are ten gene IDs from ", file_reader.species, ":")
+    logger.info("Here are ten gene IDs from %s:", file_reader.species)
     for index in range(10):
-        print(gene_IDs[index])
-    print()
+        logger.info("%s", gene_IDs[index])
+    logger.info()
 
-    print("Here are the variants of the first three gene IDs:")
+    logger.info("Here are the variants of the first three gene IDs:")
     for index in range(3):
         variants = file_reader.get_variants(gene_IDs[index])
-        print("Gene ID: ", gene_IDs[index])
+        logger.info("Gene ID: %s:", gene_IDs[index])
         for sub_index in range(len(variants)):
-            print("Variant ID", sub_index, ": ", variants[sub_index])
-    print()
+            logger.info("Variant ID %d: %s", sub_index, variants[sub_index])
+    logger.info()
 
-    print()
-    print("######################################")
-    print("DONE testing FASTA file LOAD and PARSE functionality.")
-    print("######################################")
+    logger.info("DONE testing FASTA file LOAD and PARSE functionality.")
 
     return
 
 
 # Test matching objects
-def test_matching():
+def test_matching(logger):
 
-    print("rig")
+    logger.info("rig")
 
     return
 
 
 # Test phylobuilder main
-def test_builder():
+def test_builder(logger):
 
-    print("rig")
+    logger.info("rig")
 
     return
 
 
+# Returns a logger object
+def get_logger():
+
+    time_date_string = time.strftime("%d-%m-%y_%H:%M:%S")
+    log_filename = LOG_FILE_PREFIX + time_date_string + LOG_FILE_SUFFIX
+
+    logger = logging.getLogger(LOGGER_NAME)
+    handler = logging.FileHandler(log_filename)
+    formatter = logging.Formatter('%(asctime)s')
+
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    logger.info("Created logger object.")
+
+    return logger
+
 # Run all tests
 def test_project():
 
-    test_load_parse()
+    logger = get_logger()
+
+    test_load_parse(logger)
 
     return
 
