@@ -371,10 +371,12 @@ class BLASTVariantPair (object):
                 align_length += 1
                 score += self.info.matrix[self.variant_a.sequence[i-1]][self.variant_b.sequence[j-1]]
 
-        while i <= len(self.variant_a.sequence) and j <= len(self.variant_b.sequence):
-            while self.info.matrix[self.variant_a.sequence[i+align_length]][self.variant_b.sequence[j+align_length]]:
-                align_length += 1
-                score += self.info.matrix[self.variant_a.sequence[i+align_length]][self.variant_b.sequence[j+align_length]]
+        while (i <= len(self.variant_a.sequence) and j <= len(self.variant_b.sequence) 
+        and self.info.matrix[self.variant_a.sequence[i+align_length], self.variant_b.sequence[j+align_length]] > 0):
+            align_length += 1
+            score += self.info.matrix[self.variant_a.sequence[i+align_length]][self.variant_b.sequence[j+align_length]]
+            i += 1
+            j += 1
 
         # Return substrings and score
         return (self.variant_a.sequence[i:i+align_length],
