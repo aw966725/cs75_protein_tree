@@ -129,7 +129,24 @@ def test_BLAST(logger, blast_info, phylo_tree):
                 logger.debug("Added pair %s - %s", phylo_tree.species[index_1].species,
                     phylo_tree.species[index_2].species)
 
+    test = BLASTSpeciesPair(phylo_tree.species[1].species, phylo_tree.species[0])
     logger.debug("DONE testing BLAST functionality from matching objects.")
+
+    return test.get_protein_families()
+    
+# Test Profiling
+def test_Profiling(logger, phylo_tree, protein_families):
+
+    logger.debug("BEGIN testing BLAST functionality from matching objects...")
+    
+    logger.debug("Running...")
+    cluster_info = SpeciesClusters(phylo_tree.species_names, protein_families)
+    
+    logger.debug("Initial clusters:")
+    for clusters in cluster_info.clusters[0]:
+        logger.debug("%s", clusters[0])
+        
+    logger.debug("DONE testing Profiling functionality.")
 
 
 # Test phylobuilder main
@@ -177,7 +194,9 @@ def test_project():
     # Test BLAST - default parameters
     blast_info = BLASTInfo()
 
-    test_BLAST(logger, blast_info, phylo_tree)
+    protein_families = test_BLAST(logger, blast_info, phylo_tree)
+
+    test_Profiling(logger, phylo_tree, protein_families)
 
     return
 

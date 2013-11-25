@@ -132,7 +132,6 @@ class BLASTSpeciesPair (object):
 
         count = 0
         variant_pairs = []
-        minimum = len(self.species_a.genes) * len(self.species_b.genes)
 
         # Iterate over first species' variants
         for gene_a in self.species_a.genes:
@@ -142,7 +141,7 @@ class BLASTSpeciesPair (object):
                 for gene_b in self.species_b.genes:
                     for variant_b in gene_b.variants:
 
-                        print("Getting Alignment ", count, "/", minimum, "...")
+                        print("Getting Alignment ", count,  "...")
                         count += 1
                         # Create a BLASTVariantPair object and get the alignments
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
@@ -177,7 +176,7 @@ class BLASTSpeciesPair (object):
 
         # Randomly select initial variants for clustering
         for i in range(num_families):
-            initCentroid = variant_pairs[random.randint(0, len(variant_pairs))].variant_a
+            initCentroid = self.variant_pairs[randint(0, len(self.variant_pairs))].variant_a
             clusters[initCentroid] = []
 
         prev_clusters = {}
@@ -189,18 +188,18 @@ class BLASTSpeciesPair (object):
             # Assign variants to closest clusters
             for gene in self.species_a.genes:
                 for variant in gene.variants:
-                    clusters = assign_to_cluster(variant, clusters)
+                    clusters = self.assign_to_cluster(variant, clusters)
                     
             for gene in self.species_b.genes:
                 for variant in gene.variants:
-                     clusters = assign_to_cluster(variant, clusters)
+                     clusters = self.assign_to_cluster(variant, clusters)
 
             #TODO: This might not test for equality properly, have to check
-            if clusters == prev_clusters or iterations == numiterations:
+            if clusters == prev_clusters or iterations == 100:
                 break
                 
             prev_clusters = clusters
-            clusters = recompute_centroids(prev_clusters)
+            clusters = self.recompute_centroids(prev_clusters)
 
             iterations+=1
             
@@ -228,12 +227,9 @@ class BLASTSpeciesPair (object):
                 if variant_pair.score > score:
                     closest_centroid = variant_pair.variant_a
                     score = variant_pair.score
-                        
 
         # add variant to highest scoring centroid's cluster
-        if closest_centroid == None:
-            print("Something's wrong")
-        else:
+        if closest_centroid != None:
             clusters[closest_centroid].append(variant)
         
         return clusters
