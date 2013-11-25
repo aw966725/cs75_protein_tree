@@ -60,7 +60,7 @@ class Species (object):
     # Takes a FASTA file and returns a list of Gene objects
     def genes_list_FASTA(self, FASTA_file):
         temp_list = []
-        for (gene_ID, variant_list) in FASTA_file.records.items():
+        for variant_list in FASTA_file.records.values():
             temp_list.append(Gene(variant_list, self))
         return temp_list
 
