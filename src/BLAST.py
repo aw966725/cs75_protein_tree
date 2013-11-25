@@ -187,7 +187,7 @@ class BLASTSpeciesPair (object):
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
                         variant_pairs.append(this_pair)
 
-                        score = score_species_pair()
+                        score = self.score_species_pair()
 
                         # Test for relation between these variants
                         if (score > self.info.relation_threshold_score) or (self.info.total_number_relations 
