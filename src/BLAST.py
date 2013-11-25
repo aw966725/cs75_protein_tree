@@ -174,11 +174,11 @@ class BLASTSpeciesPair (object):
 
         # Iterate over first species' variants
         for gene_a in self.species_a.genes:
-            for variant_a in gene_a:
+            for variant_a in gene_a.variants:
 
                 # Iterate over second species' variants
                 for gene_b in self.species_b.genes:
-                    for variant_b in gene_b:
+                    for variant_b in gene_b.variants:
 
                         # Create a BLASTVariantPair object and get the alignments
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
