@@ -99,9 +99,6 @@ def get_logger():
     logger.setLevel(logging.DEBUG)
 
     handler = logging.FileHandler(log_filename)
-    formatter = logging.Formatter('%(asctime)s')
-
-    handler.setFormatter(formatter)
     logger.addHandler(handler)
 
     logger.debug("Created logger object.")
