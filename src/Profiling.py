@@ -22,14 +22,27 @@ class SpeciesClusters(object):
     # computes species clusters based on profiles
     # Heirarchical?
     def compute_clusters(self):
-
-        # number of matches to consider part of the same cluster (now just rigged to 2/3)
-        threshold = (2 * len(self.protein_families)) / 3
-
         profile_list = self.profiles.profile_list
 
-        #start here
-    
+        # how do you determine distance function once they're clustered?
+        # average scores of checks against each in cluster?
+        clusters = []
+
+        # level to assess depth of cluster formation
+        level = 0
+        for profile in profile_list:
+            cluster = { count : ([profile], level)}
+            clusters.append(cluster)
+
+        #compute min distance and cluster
+        (x, y) = compute_min_pair(clusters)
+
+
+    def compute_min_pair(clusters):
+        for cluster in clusters:
+            p
+
+        
         
 
 
