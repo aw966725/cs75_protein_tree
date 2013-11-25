@@ -22,19 +22,17 @@ class SpeciesClusters(object):
     # Computes species clusters based on profiles
     def compute_clusters(self):
         profile_list = self.profiles.profile_list
-
-        # how do you determine distance function once they're clustered?
-        # average scores of checks against each in cluster?
+        
         clusters = []
 
         # Level to assess depth of cluster formation
         level = 0
-        for profile in profile_list:
-            cluster = [profile]
+        for species in profile_list:
+            cluster = [species]
             clusters[level] = []
             clusters[level].append(cluster)
         
-        while len(clusters) > 1:
+        while len(clusters[level]) > 1:
             # go to next level
             level += 1
             
@@ -51,11 +49,11 @@ class SpeciesClusters(object):
                     new_cluster.append(cluster2)
                     clusters[level].append(new_cluster)
                     
-                    # Remove second cluster because merged with first cluster at cur level
+                # Ignore second cluster because merged with first cluster at cur level
                 elif cluster == cluster2:
-                    clusters.remove(cluster2)
+                    continue
                     
-                    # If not part of group, just readd as is to next level
+                # If not part of group, just readd as is to next level
                 else:
                     clusters[level].append(cluster)
 
@@ -69,14 +67,12 @@ class SpeciesClusters(object):
 
         # Check each set of profiles against all others
         for test_cluster in clusters:
-            test_profiles = test_cluster
 
             for other_cluster in clusters:
-                if test_cluster == other_cluser:
+                if test_cluster == other_cluster:
                     continue
                 
-                other_profiles = other_cluster
-                cur_best = compute_cluster_similarity(test_profiles, other_profiles)
+                cur_best = compute_cluster_similarity(test_cluster, other_cluster)
 
                 if cur_best > max_similarity:
                     max_similarity = curbest
@@ -87,26 +83,26 @@ class SpeciesClusters(object):
 
     # Currently rudimentary: minimum distance between any two profiles
     # Computes the similarity measure between two profile sets corresponding to clusters
-    def compute_cluster_similarity(profiles, others):
+    def compute_cluster_similarity(cluster1, cluster2):
         max_similarity = 0
         
-        for profile in profiles:
-            for other in others:
+        for species in cluster1:
+            for other in cluster2:
 
-                #NOTE: profile should never be in both lists
-                if profile == other:
+                #NOTE: species should never be in both lists
+                if species == other:
                     print "uh oh"
                     
-                cur_similarity = compute_profile_similarity(profile, other)
+                cur_similarity = compute_profile_similarity(species, other)
                 if cur_similarity > max_similarity:
                     max_similarity = cur_similarity
 
         return max_similarity
 
     # Computes similarity measured by summing presence of proteins in common families
-    def compute_profile_similarity(profile1, profile2):
-        v1 = profile1.profile_vector
-        v2 = profile2.profile_vector
+    def compute_profile_similarity(species1, species2):
+        v1 = self.profiles.profile_list[species1].profile_vector
+        v1 = self.profiles.profile_list[species1].profile_vector
         count = 0
         
         for family in self.protein_families:
@@ -169,7 +165,3 @@ class Profile(object):
                 if member in self.species_proteins:
                     self.profile_vector[family] = 1
                     break
-
-
-    
-        
