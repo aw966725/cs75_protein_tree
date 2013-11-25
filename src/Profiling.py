@@ -25,6 +25,7 @@ class SpeciesClusters(object):
         
         clusters = []
 
+        
         # Level to assess depth of cluster formation
         level = 0
         for species in profile_list:
@@ -88,10 +89,10 @@ class SpeciesClusters(object):
         
         for species in cluster1:
             for other in cluster2:
-
-                #NOTE: species should never be in both lists
-                if species == other:
-                    print "uh oh"
+                
+                #NOTE: profile should never be in both lists
+                if profile == other:
+                    print("uh oh")
                     
                 cur_similarity = compute_profile_similarity(species, other)
                 if cur_similarity > max_similarity:
@@ -127,7 +128,7 @@ class Profiles(object):
         profiles = {}
         
         for species in self.species_list:
-            profile_list[species] = new Profile(species, protein_families)
+            profile_list[species] = Profile(species, protein_families)
                 
         return profiles
             
