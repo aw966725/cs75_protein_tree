@@ -60,7 +60,7 @@ def test_load_parse(logger, filename, species):
 
     gene_IDs = file_reader.get_unique_gene_IDs()
     logger.debug("Here are ten gene IDs from %s:", file_reader.species)
-    for index in range(10):
+    for index in range(3):
         logger.debug("%s", gene_IDs[index])
 
     logger.debug("Here are the variants of the first three gene IDs:")
@@ -91,7 +91,7 @@ def test_matching(logger, file_list):
     logger.debug("Here are the first 5 genes in each species and their variants.")
     for species_index in range(tree.num_species):
         logger.debug("Species %d: %s", species_index, tree.species[species_index])
-        for gene_index in range(5):
+        for gene_index in range(3):
             logger.debug("  Gene %d: %s", gene_index, tree.species[species_index].genes[gene_index].gene_ID)
             for variant_index in range(tree.species[species_index].genes[gene_index].num_variants):
                 logger.debug("    Variant %d: %s", variant_index, tree.species[species_index].genes[gene_index].variant_IDs[variant_index])
