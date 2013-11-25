@@ -53,19 +53,13 @@ class BLASTInfo (object):
         self.total_number_matches = 0
         self.threshold_score = 0
 
-        # Dynamically adjust alignment threshold
-        self.total_align_score = 0
-        self.total_align_squared_score = 0
-        self.total_number_aligns = 0
-        self.align_threshold_score = 0
-
         # Dynamically adjust relation threshold
         self.total_relation_score = 0
         self.total_relation_squared_score = 0
         self.total_number_relations = 0
         self.relation_threshold_score = 0
 
-        self.alignments = {}
+        self.alignments = defaultdict(list)
 
     # Here we get a list of all possible word_length length words in matrix and store it
     def get_all_words(self, matrix, word_length):
@@ -187,10 +181,10 @@ class BLASTSpeciesPair (object):
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
                         variant_pairs.append(this_pair)
 
-                        score = this_pair.score_variant_pair()
+                        best = this_pair.score_variant_pair()
 
                         # Test for relation between these variants
-                        if (score > self.info.relation_threshold_score) or (self.info.total_number_relations 
+                        if (best[2] > self.info.relation_threshold_score) or (self.info.total_number_relations 
                         < MINIMUM_SAMPLE):
 
                             # If this is the first time we pass minimum sample, remove entries lower than the sample
@@ -200,7 +194,7 @@ class BLASTSpeciesPair (object):
                                         self.relations.pop(i)
 
                             # Add to relation list
-                            self.relations.append((self.variant_a.gene_ID, self.variant_b.gene_ID, score))
+                            self.relations.append((variant_a.gene_ID, variant_b.gene_ID, best[2]))
 
         # Store list of variant pairs
         return variant_pairs
@@ -392,17 +386,10 @@ class BLASTVariantPair (object):
             for word in word_list:
                 print("Getting Alignment %d...", count)
                 best = self.get_best_alignment_BLAST(query, word[0])
-                if best[2] > self.info.align_threshold_score or self.info.total_number_aligns < MINIMUM_SAMPLE:
 
-                    # If this is the first time we pass minimum sample, clear alignments with a lower score
-                    if self.info.total_number_aligns == MINIMUM_SAMPLE:
-                        for (variants, alignment) in self.info.alignments.items():
-                            if alignment[2] < self.info.align_threshold_score:
-                                self.info.alignments.pop(variants)
-
-                    # Alignment dictionary keys are tuples of the two variant IDs
-                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)] = best
-                    self.info.total_number_aligns += 1
+                # Alignment dictionary keys are tuples of the two variant IDs
+                self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
+                self.info.total_number_aligns += 1
 
                 count += 1
 
@@ -413,4 +400,4 @@ class BLASTVariantPair (object):
     # Scores an alignment of a pair of variants by blasting them and summing acceptable alignments
     def score_variant_pair(self):
         self.align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
-        return self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)]
+        return sum(self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)])
