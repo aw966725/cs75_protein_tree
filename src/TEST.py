@@ -37,7 +37,7 @@ LOGGER_NAME = "phylo_logger"
 # Test GUI functionality
 def test_gui(logger):
 
-    logger.info("rig")
+    logger.debug("rig")
 
     return
 
@@ -45,29 +45,30 @@ def test_gui(logger):
 # Test loading and parsing a FASTA file
 def test_load_parse(logger):
 
-    logger.info("Testing FASTA file LOAD and PARSE functionality...")
+    logger.debug("Testing FASTA file LOAD and PARSE functionality...")
 
-    logger.info("Filename: %s", TEST_FILE_1)
-    logger.info("Species: %s", TEST_FILE_1_SPECIES)
+    logger.debug("Filename: %s", TEST_FILE_1)
+    logger.debug("Species: %s", TEST_FILE_1_SPECIES)
     
     file_reader = FASTAFile(TEST_FILE_1, TEST_FILE_1_SPECIES)
 
     num_genes = file_reader.get_num_unique_genes()
-    logger.info("Number of unique genes in %s: %d", file_reader.species, num_genes)
+    logger.debug("Number of unique genes in %s: %d", file_reader.species, num_genes)
 
     gene_IDs = file_reader.get_unique_gene_IDs()
-    logger.info("Here are ten gene IDs from %s:", file_reader.species)
+    logger.debug("Here are ten gene IDs from %s:", file_reader.species)
     for index in range(10):
-        logger.info("%s", gene_IDs[index])
+        logger.debug("%s", gene_IDs[index])
 
-    logger.info("Here are the variants of the first three gene IDs:")
+    logger.debug("Here are the variants of the first three gene IDs:")
     for index in range(3):
         variants = file_reader.get_variants(gene_IDs[index])
-        logger.info("Gene ID: %s:", gene_IDs[index])
+        logger.debug("Gene ID: %s:", gene_IDs[index])
         for sub_index in range(len(variants)):
-            logger.info("Variant ID %d: %s", sub_index, variants[sub_index])
+            variant_ID = variants[sub_index].variant
+            logger.debug("Variant ID %d: %s", sub_index, variant_ID)
 
-    logger.info("DONE testing FASTA file LOAD and PARSE functionality.")
+    logger.debug("DONE testing FASTA file LOAD and PARSE functionality.")
 
     return
 
@@ -75,7 +76,7 @@ def test_load_parse(logger):
 # Test matching objects
 def test_matching(logger):
 
-    logger.info("rig")
+    logger.debug("rig")
 
     return
 
@@ -83,7 +84,7 @@ def test_matching(logger):
 # Test phylobuilder main
 def test_builder(logger):
 
-    logger.info("rig")
+    logger.debug("rig")
 
     return
 
@@ -95,13 +96,15 @@ def get_logger():
     log_filename = LOG_FILE_PREFIX + time_date_string + LOG_FILE_SUFFIX
 
     logger = logging.getLogger(LOGGER_NAME)
+    logger.setLevel(logging.DEBUG)
+
     handler = logging.FileHandler(log_filename)
     formatter = logging.Formatter('%(asctime)s')
 
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-    logger.info("Created logger object.")
+    logger.debug("Created logger object.")
 
     return logger
 
