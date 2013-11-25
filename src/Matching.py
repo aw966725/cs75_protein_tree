@@ -73,7 +73,7 @@ class Gene (object):
         # Information about gene overall
         self.gene_ID = variants[0]
         self.num_variants = len(variants)
-        self.variant_IDs = [var.variant_ID for var in variants]
+        self.variant_IDs = [var.variant for var in variants]
 
         # Container class
         if species != None and isinstance(species, Species):
@@ -103,11 +103,11 @@ class Variant (object):
     def __init__(self, record, gene=None):
 
         # Basic information about variant
-        self.variant_ID = record.variant_ID
+        self.variant_ID = record.variant
         self.peptide_type = record.peptide_type
         self.chromosome = record.chromosome
         self.sequence = record.sequence
-        self.gene_ID = record.gene_ID
+        self.gene_ID = record.gene
 
         # Container class
         if gene != None and isinstance(gene, Gene):

@@ -15,7 +15,7 @@ from imports import *
 
 from ParseFASTA import *
 from Matching import *
-from GUI import *
+#from GUI import *
 from Profiling import *
 from PhyloBuilder import *
 from BLAST import *
