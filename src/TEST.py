@@ -125,7 +125,7 @@ def test_BLAST(logger, blast_info, phylo_tree):
         for index_2 in range(len(phylo_tree)):
             if index_1 != index_2:
                 species_pairs.append(BLASTSpeciesPair(phylo_tree.species[index_1], 
-                    phylo_tree.species[index_2]))
+                    phylo_tree.species[index_2], blast_info))
                 logger.debug("Added pair %s - %s", phylo_tree.species[index_1].species,
                     phylo_tree.species[index_2].species)
 
