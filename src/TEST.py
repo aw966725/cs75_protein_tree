@@ -129,7 +129,7 @@ def test_BLAST(logger, blast_info, phylo_tree):
                 logger.debug("Added pair %s - %s", phylo_tree.species[index_1].species,
                     phylo_tree.species[index_2].species)
 
-    test = BLASTSpeciesPair(phylo_tree.species[1].species, phylo_tree.species[0])
+    test = species_pairs[0]
     logger.debug("DONE testing BLAST functionality from matching objects.")
 
     return test.get_protein_families()
