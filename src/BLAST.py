@@ -132,6 +132,7 @@ class BLASTSpeciesPair (object):
 
         count = 0
         variant_pairs = []
+        minimum = len(self.species_a.genes) * len(self.species_b.genes)
 
         # Iterate over first species' variants
         for gene_a in self.species_a.genes:
@@ -141,7 +142,7 @@ class BLASTSpeciesPair (object):
                 for gene_b in self.species_b.genes:
                     for variant_b in gene_b.variants:
 
-                        print("Getting Alignment ", count, "...")
+                        print("Getting Alignment ", count, "/ ",  minimum, "...")
                         count += 1
                         # Create a BLASTVariantPair object and get the alignments
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
@@ -359,11 +360,14 @@ class BLASTVariantPair (object):
                     best_score = best[2]
 
                     # Alignment dictionary keys are tuples of the two variant IDs
-                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)] = best
+                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)] = best[2]
 
         return
 
     # Scores an alignment of a pair of variants by blasting them and summing acceptable alignments
     def score_variant_pair(self):
         self.align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
-        return self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)]
+        if (self.variant_a.variant_ID, self.variant_b.variant_ID) in self.info.alignments:
+            return self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)]
+        else:
+            return 0
