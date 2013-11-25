@@ -23,69 +23,83 @@
 
 \begin{document}
 \maketitle
-\pagebreak
-
-\paragraph
-{\bfseries Introduction:}
-
-\section{}
-\paragraph
-{\bfseries Concept:}
-
-\section{}
-\paragraph
-{\bfseries Defining the Problem:}
-
-\section{}
-\paragraph
-{\bfseries Our Solution:}
 
 \pagebreak
+\section{}
+{\bfseries Introduction/Concept:} An interesting problem that has arisen in the field of bioinformatics is the desire to classify biological similarities across species. One possible methodology for determining a potential biological connection is phylogenetic profiling with protein sequences. This technique involves using homology to determine presence or absence of specific genes across the set of protein sequences that a species possesses. The intuition behind the method is that proteins located in the same "family" across species indicate a biological connection between these species, and that comparing the quantities of shared-family proteins between species gives a suitable (but not airtight) heuristic for relative biological "distance" between species.
+
+\subsection{}
 \paragraph
+{\bfseries Defining the Problem:} Given $n$ sets of protein sequences, what is the relative distance between any two sets of proteins? How can these relative distances be mapped in an intuitive and meaningful format?
+
+\subsection{}
+\paragraph
+{\bfseries Our Solution:} We first place the protein sequence data for the $n$ sequences into a hierarchical structure of Tree > Species > Gene > Variant. We then use BLAST to score the individual variants from one species against the variants from another, keeping only the "meaningful" relationships above a score threshold. Since this score threshold is difficult to predict in advance, we use a "moving target" approach that recalculates the threshold to a percentile of the sample calculated thus far. Once we have defined a series of meaningful relationships between genes, we use k-means clustering to place those genes into "families". We then use the number of proteins a species has in common "families" with another species as a heuristic for relative distance, and plot those relative distances in a phylogenetic tree.
+
+\pagebreak
+\section{}
 {\bfseries Methods:}
 
-\section{}
+\subsection{}
 \paragraph
-{\bfseries Algorithm Overview:}
-
-\section{}
-\paragraph
-{\bfseries Selected Algorithm Focus Points:}
+{\bfseries Algorithm Overview:} A FASTA-file reading and parsing method reads the first $m$ protein sequences from a given species' file into a hierarchical Tree > Species > Gene > Variant data structure. At each level, crucial information is saved as attributes. $m$ is an adjustable parameter that greatly affects both the running time of the algorithm and the accuracy of the results, though we were unable to verify results at high $m$ because of hardware limitations. Once the data is loaded, we instantiate a BLAST class that holds information on the progress of the entire algorithm (across all species/genes/variants), as well as sub-classes for species pairs and variant pairs, and we one by one BLAST the variants of species A against the variants of species B. As we do so, we continually recalculate the score threshold for both query words and gene-gene relationships to be a percentile based on the corresponding values already calculated. This moving threshold ensures significance for the saved values even for greatly varying sample size. Gene-gene relationships are scored by a best alignment of their variants (there may be multiple), and summed to produce a relationship score. Once a list of scored gene-gene relationships has been built for a species A and species B, k-means clustering is used to determine which variants (from either species) fall into the same "families." From there, distance between species is scored as the count of genes in a common family with the other species, and the results are displayed using a graphical phylogenetic tree. 
 
 \pagebreak
-\paragraph
-{\bfseries Results:}
-
 \section{}
+{\bfseries Results:} We found that our project functions best as a proof of concept - unfortunately, our algorithm remains unusably slow with more accurate parameters (especially high $m$ value), but it seems to work correctly despite the low $m$ values we were forced to use. With sufficient computing power (or time) to process the complete protein sequence sets of each species input into the algorithm, we maintain that the results obtained would be far more accurate and sufficient as a heuristic for approximating biological "distance" in terms of protein sequence variation.
+
+\subsection{}
 \paragraph
-{\bfseries Test Cases:}
+{\bfseries Test Cases:} The following species' protein sequence files from the NCBI website were used: Ciona Intestinalis, Ciona Savignyi, Mus Musculus, Saccharomyces Cerevisiae, Sus Scrofa. We tested with number of protein sets in $1 \le n \le 5$, percentile threshold values in $1 \le p \le 5$, variants per species in $1 \le m \le 500$, word length in $2 \le w \le 4$, and 
 
 \pagebreak
-\paragraph
+\section{}
 {\bfseries Appendix:}
 
-\section{}
+\subsection{}
 \paragraph
 {\bfseries Bibliography:}
+\begin{enumerate}
 
-\section{}
+\item http://www.ncbi.nlm.nih.gov/
+
+\item http://www.plosone.org/article/info\%3Adoi\%2F10.1371\%2Fjournal.pone.0052854
+
+\item http://www.pnas.org/content/96/8/4285.long
+
+\item http://useast.ensembl.org/info/data/ftp/index.html
+
+\item http://gorbi.irb.hr/en/method/phylogenetic-profiling/
+
+\end{enumerate}
+
+\subsection{}
 \paragraph
 {\bfseries Work Distribution:}
+\begin{description}
 
-\section{}
-\paragraph
-{\bfseries Data Sets:}
+\item[Varun:] programmed the k-means clustering portion of the algorithm, as well as the GUI functionality.
 
-\subsection{}
-\paragraph
-{\bfseries Description of Data Sets:}
+\item[Alex:] programmed the FASTA parsing, the hierarchical data structures, and the BLAST portion of the algorithm.
 
-\subsection{}
-\paragraph
-{\bfseries Data Set Format:}
+\item[Both:] researched the topic, refined the methodology, and tested the product.
+
+\end{description}
 
 \subsection{}
 \paragraph
-{\bfseries Sample of Data Set:}
+{\bfseries Data Sets:} We established a base set of genomes across several species using the databases provided by the National Center for Biotechnology Information (NCBI) (1). We then evaluated the accuracy of this initial profiling largely based on the known biological relatedness of the species in question, and selected a small set of organisms (initial $n$ around 5) with relatively small genomic sequences for initial testing as done in Psomopoulos et. al. (2). We will then store this initial dataset and select several new genomes BLASTed against genomes in the initial test set. This way we will be able to evaluate the effectiveness of the profiling against known similar sequences. We ran our program with $n$ up to 5 based on [2] and [3].
+
+\subsubsection{}
+\paragraph
+{\bfseries Description of Data Sets:} Data sets came in the form of protein-sequence FASTA files from the NCBI. Each protein sequence variant has an amino acid sequence, a non-unique gene identifier, and a unique variant identifier, as well as other (not used by our algorithm) information.
+
+\subsubsection{}
+\paragraph
+{\bfseries Sample of Variant Format:}
+>ENSCINP00000036364 pep:known chromosome:KH:1:2801826:2809257:1 gene:ENSCING00000021898 transcript:ENSCINT00000034723 gene\_biotype:protein\_coding transcript\_biotype:protein\_coding
+MRVFQKNITLNGLHVRKVEDLNEITVHMLEVMHFKLATDAKKKGFDMGPTSSGFQGNVSN
+NDQSMDLGMDSVQTQVWKLIQSATDDDGISITNIRSSLKGLNINQIKKAVDFLCNEGHIY
+STIDDDHFKTTSF
 
 \end{document}
