@@ -145,9 +145,11 @@ class BLASTSpeciesPair (object):
         else:
             self.info = None
 
+        print("Getting alignments.")
         # BLASTVariantPair objects
         self.variant_pairs = self.get_alignments()
 
+        print("Getting families.")
         # "Families" of related proteins
         self.protein_families = self.get_protein_families()
 
