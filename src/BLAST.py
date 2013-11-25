@@ -396,7 +396,7 @@ class BLASTVariantPair (object):
 
                     # If this is the first time we pass minimum sample, clear alignments with a lower score
                     if self.info.total_number_aligns == MINIMUM_SAMPLE:
-                        for (variants, alignments) in self.info.alignments.items():
+                        for (variants, alignment) in self.info.alignments.items():
                             if alignment[2] < self.info.align_threshold_score:
                                 self.info.alignments.pop(variants)
 
@@ -413,4 +413,4 @@ class BLASTVariantPair (object):
     # Scores an alignment of a pair of variants by blasting them and summing acceptable alignments
     def score_variant_pair(self):
         self.align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
-        return sum(self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)])
+        return self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)]
