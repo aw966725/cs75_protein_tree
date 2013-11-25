@@ -117,7 +117,7 @@ class FASTAFile (object):
         return self.records.get(gene_ID)
 
     # Validate a filename as existent and in the correct format, then open and return it
-    def validate_and_open(filename):
+    def validate_and_open(self, filename):
 
         # Is this a string?
         if not isinstance(filename, str):
