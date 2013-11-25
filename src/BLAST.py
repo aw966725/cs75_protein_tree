@@ -58,7 +58,7 @@ class BLASTInfo (object):
         self.total_number_relations = 0
         self.relation_threshold_score = 0
 
-        self.alignments = defaultdict(list)
+        self.alignments = {}
 
     # Re-calculate the approximated threshold score after each new matching
     def recalculate_threshold_score(self):
@@ -130,6 +130,7 @@ class BLASTSpeciesPair (object):
     # Process alignments for the two species (may take a long time)
     def get_alignments(self):
 
+        count = 0
         variant_pairs = []
 
         # Iterate over first species' variants
@@ -140,6 +141,8 @@ class BLASTSpeciesPair (object):
                 for gene_b in self.species_b.genes:
                     for variant_b in gene_b.variants:
 
+                        print("Getting Alignment ", count, "...")
+                        count += 1
                         # Create a BLASTVariantPair object and get the alignments
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
                         variant_pairs.append(this_pair)
@@ -344,27 +347,23 @@ class BLASTVariantPair (object):
     # BLAST alignment function - takes two sequences
     def align_BLAST(self, seq_a, seq_b):
 
-        count = 0
+        best_score = 0
 
         # Get threshold-tested words
         threshold_words = self.get_threshold_words()
         for (query, word_list) in threshold_words.items():
             for word in word_list:
-                print("Getting Alignment ", count, "...")
                 best = self.get_best_alignment_BLAST(query, word[0])
 
-                if best[2] > 0:
+                if best[2] > best_score:
+                    best_score = best[2]
 
                     # Alignment dictionary keys are tuples of the two variant IDs
-                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
-
-                    count += 1
+                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)] = best
 
         return
 
     # Scores an alignment of a pair of variants by blasting them and summing acceptable alignments
     def score_variant_pair(self):
         self.align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
-        alignments = self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)]
-        scores = [align[2] for align in alignments]
-        return sum(scores)
+        return self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)]
