@@ -157,17 +157,17 @@ class BLASTSpeciesPair (object):
         # Relations defined between genes      
         self.relations = []
 
+        # Info struct
+        if info != None and isinstance(info, BLASTInfo):
+            self.info = info
+        else:
+            self.info = None
+
         # BLASTVariantPair objects
         self.variant_pairs = self.get_alignments()
 
         # "Families" of related proteins
         self.protein_families = self.get_protein_families()
-
-        self.info = None
-
-        # Info struct
-        if info != None and isinstance(info, BLASTInfo):
-            self.info = info
 
     # Process alignments for the two species (may take a long time)
     def get_alignments(self):
@@ -318,11 +318,11 @@ class BLASTVariantPair (object):
         self.variant_a = variant_a
         self.variant_b = variant_b
 
-        self.info = None
-
         # Info struct
         if info != None and isinstance(info, BLASTInfo):
             self.info = info
+        else:
+            self.info = None
 
         # BLAST these protein sequences against each other and obtain score
         self.score = score_variant_pair()
