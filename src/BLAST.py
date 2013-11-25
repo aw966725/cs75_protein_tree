@@ -176,7 +176,7 @@ class BLASTSpeciesPair (object):
 
         # Randomly select initial variants for clustering
         for i in range(num_families):
-            initCentroid = self.variant_pairs[randint(0, len(self.variant_pairs))].variant_a
+            initCentroid = self.variant_pairs[randint(0, num_families)].variant_a
             clusters[initCentroid] = []
 
         prev_clusters = {}

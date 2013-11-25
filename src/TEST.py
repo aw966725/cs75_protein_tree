@@ -140,7 +140,7 @@ def test_Profiling(logger, phylo_tree, protein_families):
     logger.debug("BEGIN testing BLAST functionality from matching objects...")
     
     logger.debug("Running...")
-    cluster_info = SpeciesClusters(phylo_tree.species_names, protein_families)
+    cluster_info = SpeciesClusters(phylo_tree.species, protein_families)
     
     logger.debug("Initial clusters:")
     for clusters in cluster_info.clusters[0]:

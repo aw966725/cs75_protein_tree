@@ -20,8 +20,9 @@ import math
 
 class TreeNode(object):
 
-    def __init__(self, species, startx, starty):
+    def __init__(self, species, name, startx, starty):
         self.species = species
+        self.name = name
         self.x = startx
         self.y = starty
 
@@ -59,7 +60,7 @@ class TreeDraw(Frame):
         spacing = CANVAS_HEIGHT / len(self.species_list)
         count = 0
         for species in self.species_list:
-            nodes.append(TreeNode(species, x, y + spacing*count))
+            nodes.append(TreeNode([species], species,  x, y + spacing*count))
             count += 1
             
         for node in nodes:
@@ -70,8 +71,17 @@ class TreeDraw(Frame):
         for level in range(len(clusters) - 1):
             cur_clusters = clusters[level]
             next_clusters = clusters[level + 1]
-
-                    
+            
+            for cluster in next_clusters:
+                found = False
+                for node in nodes:
+                    if node.species == cluster:
+                        found = True
+                        node.x += length
+                if not found:
+                    rig = rig
+                    #nodes.append(TreeNode(cluster, 
+            
                 
             
 def main():
