@@ -23,7 +23,7 @@ from collections import defaultdict
 MAX_FILE_SIZE_MB = 20
 MAX_FILE_SIZE_B = MAX_FILE_SIZE_MB * 1048576
 
-MAX_ENTRIES = 100
+MAX_ENTRIES = 5
 
 ## CLASSES
 
