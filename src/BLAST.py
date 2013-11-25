@@ -364,8 +364,7 @@ class BLASTVariantPair (object):
         align_length = 0
         score = self.info.BLAST_score(query, word)
 
-        while i > 0 and j > 0:
-            while self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]] > 0:
+        while (i > 0 and j > 0 and self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]] > 0):
                 i -= 1
                 j -= 1
                 align_length += 1
