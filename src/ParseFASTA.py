@@ -43,6 +43,7 @@ class FASTAFile (object):
         self.file = self.validate_and_open(filename)
         self.filename = filename
         self.species = species
+        self.num_records = 0
 
         # Auto-generates lists for new keys and appends to list for existing keys
         # Keys are gene_IDs, values are lists of FASTARecords with that gene ID
@@ -135,8 +136,8 @@ class FASTAFile (object):
 
         # Safely try opening it
         try:
-            with open(filename, 'r') as FASTA_file:
-                return FASTA_file
+            FASTA_file = open(filename, 'r')
+            return FASTA_file
         except IOError:
             print("Could not open FASTA file.\n")
             return None

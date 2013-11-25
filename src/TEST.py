@@ -59,7 +59,6 @@ def test_load_parse(logger):
     logger.info("Here are ten gene IDs from %s:", file_reader.species)
     for index in range(10):
         logger.info("%s", gene_IDs[index])
-    logger.info()
 
     logger.info("Here are the variants of the first three gene IDs:")
     for index in range(3):
@@ -67,7 +66,6 @@ def test_load_parse(logger):
         logger.info("Gene ID: %s:", gene_IDs[index])
         for sub_index in range(len(variants)):
             logger.info("Variant ID %d: %s", sub_index, variants[sub_index])
-    logger.info()
 
     logger.info("DONE testing FASTA file LOAD and PARSE functionality.")
 
