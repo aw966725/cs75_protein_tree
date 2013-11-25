@@ -187,7 +187,6 @@ class BLASTSpeciesPair (object):
                         score = score_species_pair()
 
                         # Test for relation between these variants
-<<<<<<< HEAD
                         if (score > self.info.relation_threshold_score) or (self.info.total_number_relations 
                         < MINIMUM_SAMPLE):
 
@@ -202,15 +201,6 @@ class BLASTSpeciesPair (object):
 
         # Store list of variant pairs
         return variant_pairs
-
-    # Categorize the proteins into "families" to decrease processing time
-    def get_protein_families(self):
-
-
-        return
-=======
-                        #if
-        return
 
     # Categorize the proteins into "families" to decrease processing time
     def get_protein_families(self, num_families=3, iterations=100):
@@ -309,9 +299,6 @@ class BLASTSpeciesPair (object):
             new_clusters[new_centroid] = []
 
         return new_clusters
-
-            
->>>>>>> eff3dc5ee6b0fb151cf7d1cfa5d7aa104b928e19
 
     # Score species pair by checking the protein families against each other
     def score_species_pair(self):
