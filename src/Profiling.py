@@ -131,7 +131,7 @@ class Profiles(object):
         profiles = {}
         
         for species in self.species_list:
-            profile_list[species] = new Profile(species, protein_families)
+            profile_list[species] = Profile(species, protein_families)
                 
         return profiles
             
