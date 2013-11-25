@@ -65,7 +65,7 @@ class BLASTInfo (object):
         self.total_number_relations = 0
         self.relation_threshold_score = 0
 
-        self.alignments = defaultdict(list)
+        self.alignments = {}
 
     # Here we get a list of all possible word_length length words in matrix and store it
     def get_all_words(self, matrix, word_length):
@@ -364,18 +364,18 @@ class BLASTVariantPair (object):
         align_length = 0
         score = self.info.BLAST_score(query, word)
 
-        while (i > 0 and j > 0 and self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]] > 0):
+        while (i >= 0 and j >= 0 and self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]] > 0):
                 i -= 1
                 j -= 1
                 align_length += 1
                 score += self.info.matrix[self.variant_a.sequence[i-1], self.variant_b.sequence[j-1]]
 
-        while (i + align_length <= len(self.variant_a.sequence) and j + align_length <= len(self.variant_b.sequence) 
+        while (i + align_length <= len(self.variant_a.sequence) - 1 and j + align_length <= len(self.variant_b.sequence) - 1
         and self.info.matrix[self.variant_a.sequence[i+align_length], self.variant_b.sequence[j+align_length]] > 0):
-            align_length += 1
             score += self.info.matrix[self.variant_a.sequence[i+align_length], self.variant_b.sequence[j+align_length]]
             i += 1
             j += 1
+            align_length += 1
 
         # Return substrings and score
         return (self.variant_a.sequence[i:i+align_length],
@@ -396,12 +396,13 @@ class BLASTVariantPair (object):
 
                     # If this is the first time we pass minimum sample, clear alignments with a lower score
                     if self.info.total_number_aligns == MINIMUM_SAMPLE:
-                        for (variants, alignment) in self.info.alignments.items():
+                        for (variants, alignments) in self.info.alignments.items():
                             if alignment[2] < self.info.align_threshold_score:
-                                self.info.alignments.get(variants).remove(alignment)
+                                self.info.alignments.pop(variants)
 
                     # Alignment dictionary keys are tuples of the two variant IDs
-                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
+                    self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)] = best
+                    self.info.total_number_aligns += 1
 
                 count += 1
 
