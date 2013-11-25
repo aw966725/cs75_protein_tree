@@ -100,19 +100,6 @@ class BLASTInfo (object):
         self.threshold_score = (z * std_dev) + mean
         return
 
-    # Recalculate the alignment threshold (same as above)
-    def recalculate_alignment_threshold_score(self):
-
-        # Get Z-score
-        mean = self.total_align_score / self.total_number_aligns
-        std_dev = math.pow((pow(self.total_align_squared_score, 2) / self.total_number_aligns)
-            - pow(mean, 2), 0.5)
-        z = lookup_z_score(100 - self.threshold)
-
-        # Get approximate threshold score
-        self.align_threshold_score = (z * std_dev) + mean
-        return
-
     # Recalculate the relation threshold (same as above)
     def recalculate_relation_threshold_score(self):
 
@@ -181,10 +168,10 @@ class BLASTSpeciesPair (object):
                         this_pair = BLASTVariantPair(variant_a, variant_b, self.info)
                         variant_pairs.append(this_pair)
 
-                        best = this_pair.score_variant_pair()
+                        score = this_pair.score_variant_pair()
 
                         # Test for relation between these variants
-                        if (best[2] > self.info.relation_threshold_score) or (self.info.total_number_relations 
+                        if (score > self.info.relation_threshold_score) or (self.info.total_number_relations 
                         < MINIMUM_SAMPLE):
 
                             # If this is the first time we pass minimum sample, remove entries lower than the sample
@@ -194,7 +181,7 @@ class BLASTSpeciesPair (object):
                                         self.relations.pop(i)
 
                             # Add to relation list
-                            self.relations.append((variant_a.gene_ID, variant_b.gene_ID, best[2]))
+                            self.relations.append((variant_a.gene_ID, variant_b.gene_ID, score))
 
         # Store list of variant pairs
         return variant_pairs
@@ -367,8 +354,6 @@ class BLASTVariantPair (object):
         while (i + align_length <= len(self.variant_a.sequence) - 1 and j + align_length <= len(self.variant_b.sequence) - 1
         and self.info.matrix[self.variant_a.sequence[i+align_length], self.variant_b.sequence[j+align_length]] > 0):
             score += self.info.matrix[self.variant_a.sequence[i+align_length], self.variant_b.sequence[j+align_length]]
-            i += 1
-            j += 1
             align_length += 1
 
         # Return substrings and score
@@ -389,15 +374,14 @@ class BLASTVariantPair (object):
 
                 # Alignment dictionary keys are tuples of the two variant IDs
                 self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)].append(best)
-                self.info.total_number_aligns += 1
 
                 count += 1
 
-        # Recalculate score threshold
-        self.info.recalculate_alignment_threshold_score()
         return
 
     # Scores an alignment of a pair of variants by blasting them and summing acceptable alignments
     def score_variant_pair(self):
         self.align_BLAST(self.variant_a.sequence, self.variant_b.sequence)
-        return sum(self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)])
+        alignments = self.info.alignments[(self.variant_a.variant_ID, self.variant_b.variant_ID)]
+        scores = [align[2] for align in alignments]
+        return sum(scores)
