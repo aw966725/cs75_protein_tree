@@ -42,7 +42,7 @@
 
 \subsection{}
 \paragraph
-{\bfseries Algorithm Overview:} A FASTA-file reading and parsing method reads the first $m$ protein sequences from a given species' file into a hierarchical Tree > Species > Gene > Variant data structure. At each level, crucial information is saved as attributes. $m$ is an adjustable parameter that greatly affects both the running time of the algorithm and the accuracy of the results, though we were unable to verify results at high $m$ because of hardware limitations. Once the data is loaded, we instantiate a BLAST class that holds information on the progress of the entire algorithm (across all species/genes/variants), as well as sub-classes for species pairs and variant pairs, and we one by one BLAST the variants of species A against the variants of species B. As we do so, we continually recalculate the score threshold for both query words and gene-gene relationships to be a percentile based on the corresponding values already calculated. This moving threshold ensures significance for the saved values even for greatly varying sample size. Gene-gene relationships are scored by a best alignment of their variants (there may be multiple), and summed to produce a relationship score. Once a list of scored gene-gene relationships has been built for a species A and species B, k-means clustering is used to determine which variants (from either species) fall into the same "families." From there, distance between species is scored as the count of genes in a common family with the other species, and the results are displayed using a graphical phylogenetic tree. 
+{\bfseries Algorithm:} A FASTA-file reading and parsing method reads the first $m$ protein sequences from a given species' file into a hierarchical Tree > Species > Gene > Variant data structure. At each level, crucial information is saved as attributes. $m$ is an adjustable parameter that greatly affects both the running time of the algorithm and the accuracy of the results, though we were unable to verify results at high $m$ because of hardware limitations. Once the data is loaded, we instantiate a BLAST class that holds information on the progress of the entire algorithm (across all species/genes/variants), as well as sub-classes for species pairs and variant pairs, and we one by one BLAST the variants of species A against the variants of species B. As we do so, we continually recalculate the score threshold for both query words and gene-gene relationships to be a percentile based on the corresponding values already calculated. This moving threshold ensures significance for the saved values even for greatly varying sample size. Gene-gene relationships are scored by a best alignment of their variants (there may be multiple), and summed to produce a relationship score. Once a list of scored gene-gene relationships has been built for a species A and species B, k-means clustering is used to determine which variants (from either species) fall into the same "families." From there, distance between species is scored as the count of genes in a common family with the other species, and the results are displayed using a graphical phylogenetic tree. 
 
 \pagebreak
 \section{}
@@ -50,7 +50,7 @@
 
 \subsection{}
 \paragraph
-{\bfseries Test Cases:} The following species' protein sequence files from the NCBI website were used: Ciona Intestinalis, Ciona Savignyi, Mus Musculus, Saccharomyces Cerevisiae, Sus Scrofa. We tested with number of protein sets in $1 \le n \le 5$, percentile threshold values in $1 \le p \le 5$, variants per species in $1 \le m \le 500$, word length in $2 \le w \le 4$, and 
+{\bfseries Test Cases:} The following species' protein sequence files from the NCBI website were used: Ciona Intestinalis, Ciona Savignyi, Mus Musculus, Saccharomyces Cerevisiae, Sus Scrofa. We tested with number of protein sets in $1 \le n \le 5$, percentile threshold values in $1 \le p \le 5$, variants per species in $50 \le m \le 500$, word length in $2 \le w \le 4$, and minimum sample sizes of $10 \le s \le 1000$. While $n$ does not affect the accuracy of the algorithm (aside from providing a larger sample for threshold calculations), it does change the complexity by a non-trivial factor. Far more important for both accuracy and computation time is the $m$ value - the number of protein variants to read in and use for a given species. Limiting to $m$ variants per species is a compromise that was necessary due to the immense complexity of using the full set of proteins from each. Using values around $m = 50$ was the point at which we believe the results we calculated became meaningful, and the accuracy of the results is directly proportional to (and hugely dependent on) on the $m$ value. We observed that $w = 2$ produced meaningless results even at higher $m$, and that $w = 3$ provided meaningful enough results that moving to $w = 4$ is not worth the running time. Raising $p$ lowered the quality of the results (as what one would expect), but by a trivial amount. We postulate that this is due to the small $m$ and that in general, filtering by the statistically-derived threshold raises the quality of the results immensely. Finally, changing $s$ was found to have almost no impact on the quality of the results.
 
 \pagebreak
 \section{}
@@ -78,11 +78,11 @@
 {\bfseries Work Distribution:}
 \begin{description}
 
-\item[Varun:] programmed the k-means clustering portion of the algorithm, as well as the GUI functionality.
+\item[Varun:] programmed the k-means clustering portion of the algorithm and the GUI functionality.
 
-\item[Alex:] programmed the FASTA parsing, the hierarchical data structures, and the BLAST portion of the algorithm.
+\item[Alex:] programmed the FASTA parsing, the hierarchical data structures, and the BLAST portion of the algorithm. In addition, he wrote the methods used for testing as well as the final report.
 
-\item[Both:] researched the topic, refined the methodology, and tested the product.
+\item[Both:] researched the topic, found data sets, refined the methodology, and tested the product.
 
 \end{description}
 
@@ -96,9 +96,8 @@
 
 \subsubsection{}
 \paragraph
-{\bfseries Sample of Variant Format:}
->ENSCINP00000036364 pep:known chromosome:KH:1:2801826:2809257:1 gene:ENSCING00000021898 transcript:ENSCINT00000034723 gene\_biotype:protein\_coding transcript\_biotype:protein\_coding
-MRVFQKNITLNGLHVRKVEDLNEITVHMLEVMHFKLATDAKKKGFDMGPTSSGFQGNVSN
+{\bfseries Sample of Variant Format:} Ciona Intestinalis \\
+$>$ ENSCINP00000036364 pep:known chromosome:KH:1:2801826:2809257:1 gene:ENSCING00000021898 transcript:ENSCINT00000034723 gene\_biotype:protein\_coding transcript\_biotype:protein\_coding MRVFQKNITLNGLHVRKVEDLNEITVHMLEVMHFKLATDAKKKGFDMGPTSSGFQGNVSN
 NDQSMDLGMDSVQTQVWKLIQSATDDDGISITNIRSSLKGLNINQIKKAVDFLCNEGHIY
 STIDDDHFKTTSF
 
