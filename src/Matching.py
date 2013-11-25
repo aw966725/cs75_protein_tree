@@ -86,7 +86,7 @@ class Gene (object):
     def variants_from_records(self, variant_list):
         temp_list = []
         for variant in variant_list:
-            temp_list.append(Variant(variant))
+            temp_list.append(Variant(variant, self))
         return temp_list
 
     # Returns number of variants of this gene
